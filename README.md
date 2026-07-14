@@ -371,7 +371,7 @@ The SQL script includes sample data for:
 ## Team Members
 
 - **Hafsa Alam Chowdhury**
-- **Zara Haque**
+- **Khadija Haque Zara **
 
 ---
 
