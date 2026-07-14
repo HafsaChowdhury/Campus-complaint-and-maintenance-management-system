@@ -95,7 +95,7 @@ Complaints migrate through deterministic state-machine phases defined within the
 *   **Workflow States:** Populated engine statuses from `Pending` through `Closed`.
 *   **Root Administrator:**
     *   **Email / Login:** `admin@campus.edu`
-    *   **Initial Password Hash:** `$2y$10$replace_with_hash` *(Remember to update this BCRYPT string with your application's secure credentials before production usage).*
+    *   **Initial Password Hash:** `$2y$10$replace_with_hash` **
 
 ---
 
