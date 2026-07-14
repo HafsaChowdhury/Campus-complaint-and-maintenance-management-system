@@ -86,27 +86,9 @@ Complaints migrate through deterministic state-machine phases defined within the
 
 ---
 
-## ⚡ Setup & Initialization
-
-### Prerequisites
-*   MySQL Server (v5.7 or higher / v8.0+ recommended)
-
-### Deployment Steps
-
-1. Clone this repository or copy the SQL schema script.
-2. Import the schema script into your target MySQL instance using the CLI:
-   ```bash
-   mysql -u your_username -p < schema.sql
-   ```
-   *(Alternatively, copy and run the raw SQL inside your preferred database IDE such as DBeaver, phpMyAdmin, DataGrip, or MySQL Workbench).*
-
-### Seed Data Included
-*   **Buildings:** Default entries for `Academic Building`, `Library`, `Hostel`, `Cafeteria`, `Laboratory`, `Auditorium`, and `Playground`.
-*   **Categories:** Pre-populated common issue sectors like `Electrical`, `Plumbing`, `Internet/Wi-Fi`, `AC`, `Water Supply`, and `Cleanliness`.
-*   **Workflow States:** Populated engine statuses from `Pending` through `Closed`.
 *   **Root Administrator:**
     *   **Email / Login:** `admin@campus.edu`
-    *   **Initial Password Hash:** `$2y$10$replace_with_hash` **
+    *   **Initial Password :** `admin123` **
 
 ---
 
