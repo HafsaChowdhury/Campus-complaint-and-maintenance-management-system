@@ -1,15 +1,10 @@
 <?php
-/**
- * Admin Ticket Dispatch Center
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 
 requireLogin('admin');
 
-// Filters
 $statusFilter = sanitize($_GET['status'] ?? '');
 $categoryFilter = sanitize($_GET['category'] ?? '');
 $priorityFilter = sanitize($_GET['priority'] ?? '');
@@ -38,8 +33,7 @@ if (!empty($buildingFilter)) {
     $queryParams[] = (int)$buildingFilter;
 }
 
-try {
-    // Pagination setup
+try{
     $countStmt = $pdo->prepare(
         "SELECT COUNT(*) FROM complaints c
          JOIN complaint_status cs ON c.status_id = cs.status_id
@@ -54,7 +48,6 @@ try {
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $pagination = paginate($totalItems, 10, $page);
 
-// Add limits
 $queryParams[] = $pagination['offset'];
 $queryParams[] = $pagination['per_page'];
 
@@ -81,7 +74,6 @@ try {
     $complaints = [];
 }
 
-// Fetch categories, locations, staff list for dropdowns & dispatch modal
 try {
     $categories = getCategories($pdo);
     $buildings = getBuildings($pdo);
@@ -95,7 +87,6 @@ $currentPage = "complaints";
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- Filters Card -->
 <div class="card mb-lg stagger-in">
     <div class="card-body">
         <form method="GET" action="<?= BASE_URL ?>/admin/complaints.php" class="table-filters" id="filter-form">
@@ -150,7 +141,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- Dispatch Table Card -->
 <div class="card stagger-in">
     <div class="card-body">
         <div class="table-container">
@@ -228,7 +218,6 @@ require_once __DIR__ . '/../includes/header.php';
             </table>
         </div>
 
-        <!-- Render Pagination -->
         <?php 
             $paginationUrl = BASE_URL . "/admin/complaints.php?status=" . urlencode($statusFilter) . "&category=" . urlencode($categoryFilter) . "&priority=" . urlencode($priorityFilter) . "&building=" . urlencode($buildingFilter);
             echo renderPagination($pagination, $paginationUrl);
@@ -236,7 +225,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- Dispatch Assignment Modal Overlay -->
 <div class="modal-overlay" id="dispatch-modal">
     <div class="modal" style="max-width: 460px;">
         <div class="modal-header">
@@ -271,7 +259,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- Ticket Specifications Modal Overlay -->
 <div class="modal-overlay" id="ticket-modal">
     <div class="modal modal-lg">
         <div class="modal-header">
