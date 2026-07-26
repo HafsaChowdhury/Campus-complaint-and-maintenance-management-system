@@ -88,10 +88,14 @@ require_once __DIR__ . '/../includes/header.php';
                                 </td>
                                 <td class="text-right">
                                     <div class="table-actions" style="justify-content: flex-end;">
-                                        <button onclick='openEditModal(<?= json_encode($student) ?>)' class="btn btn-outline btn-sm btn-icon" title="Edit Student">
+                                        <!-- Safe JSON encoding inside HTML data attributes -->
+                                        <button data-student='<?= htmlspecialchars(json_encode($student), ENT_QUOTES, "UTF-8") ?>' onclick="viewStudentFromBtn(this)" class="btn btn-outline btn-sm btn-icon" title="View Student Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button data-student='<?= htmlspecialchars(json_encode($student), ENT_QUOTES, "UTF-8") ?>' onclick="openEditModalFromBtn(this)" class="btn btn-outline btn-sm btn-icon" title="Edit Student">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button onclick="handleDelete(<?= $student['user_id'] ?>)" class="btn btn-outline btn-sm btn-icon text-danger" title="Delete Student">
+                                        <button onclick="handleDelete(<?= (int)$student['user_id'] ?>)" class="btn btn-outline btn-sm btn-icon text-danger" title="Delete Student">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -105,12 +109,71 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
+<!-- ─── VIEW STUDENT DETAILS MODAL ─── -->
+<div class="modal-overlay" id="student-view-modal">
+    <div class="modal" style="max-width: 560px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-graduate" style="margin-right:8px;"></i> Student Profile</h3>
+            <button class="modal-close" onclick="closeModal('student-view-modal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="detail-section">
+                <div class="detail-row">
+                    <div class="detail-label">Student ID / Roll</div>
+                    <div class="detail-value text-primary font-bold" id="vs-student-number">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Full Name</div>
+                    <div class="detail-value" id="vs-name">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Email Address</div>
+                    <div class="detail-value" id="vs-email">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Phone Number</div>
+                    <div class="detail-value" id="vs-phone">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Department</div>
+                    <div class="detail-value" id="vs-department">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Semester</div>
+                    <div class="detail-value" id="vs-semester">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Hostel / Building</div>
+                    <div class="detail-value" id="vs-building">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Room Number</div>
+                    <div class="detail-value" id="vs-room">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Account Status</div>
+                    <div class="detail-value" id="vs-status">—</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Registered On</div>
+                    <div class="detail-value" id="vs-created">—</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('student-view-modal')">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- ─── ADD/EDIT STUDENT MODAL ─── -->
 <div class="modal-overlay" id="student-modal">
     <div class="modal">
         <div class="modal-header">
             <h3 id="modal-title">Add Student Record</h3>
-            <button class="modal-close" onclick="Modal.close('student-modal')">
+            <button class="modal-close" onclick="closeModal('student-modal')">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -184,7 +247,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="Modal.close('student-modal')">Cancel</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('student-modal')">Cancel</button>
                 <button type="submit" class="btn btn-primary" id="modal-submit-btn">Save Student</button>
             </div>
         </form>
@@ -194,7 +257,67 @@ require_once __DIR__ . '/../includes/header.php';
 <?php 
 $extraScripts = "
 <script>
-setupTableSearch('student-search', 'students-table');
+// Safe Modal Open/Close Wrappers
+function openModal(id) {
+    if (window.Modal && typeof Modal.open === 'function') {
+        Modal.open(id);
+    } else {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.add('active', 'show');
+            el.style.display = 'flex';
+        }
+    }
+}
+
+function closeModal(id) {
+    if (window.Modal && typeof Modal.close === 'function') {
+        Modal.close(id);
+    } else {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.remove('active', 'show');
+            el.style.display = 'none';
+        }
+    }
+}
+
+// Data Unpackers from Button Attributes
+function viewStudentFromBtn(btn) {
+    try {
+        const student = JSON.parse(btn.getAttribute('data-student'));
+        viewStudent(student);
+    } catch (e) {
+        console.error('Failed to parse student data for viewing:', e);
+    }
+}
+
+function openEditModalFromBtn(btn) {
+    try {
+        const student = JSON.parse(btn.getAttribute('data-student'));
+        openEditModal(student);
+    } catch (e) {
+        console.error('Failed to parse student data for editing:', e);
+    }
+}
+
+if (typeof setupTableSearch === 'function') {
+    setupTableSearch('student-search', 'students-table');
+}
+
+function viewStudent(student) {
+    document.getElementById('vs-student-number').textContent = student.student_number || '—';
+    document.getElementById('vs-name').textContent = student.name || '—';
+    document.getElementById('vs-email').textContent = student.email || '—';
+    document.getElementById('vs-phone').textContent = student.phone || '—';
+    document.getElementById('vs-department').textContent = student.department || '—';
+    document.getElementById('vs-semester').textContent = student.semester || '—';
+    document.getElementById('vs-building').textContent = student.building_name || '—';
+    document.getElementById('vs-room').textContent = student.room_no || '—';
+    document.getElementById('vs-status').textContent = student.status ? student.status.charAt(0).toUpperCase() + student.status.slice(1) : '—';
+    document.getElementById('vs-created').textContent = student.created_at || '—';
+    openModal('student-view-modal');
+}
 
 function openAddModal() {
     document.getElementById('student-form').reset();
@@ -203,7 +326,7 @@ function openAddModal() {
     document.getElementById('modal-title').textContent = 'Add Student Record';
     document.getElementById('m-password').setAttribute('required', 'required');
     document.getElementById('password-group').style.display = 'block';
-    Modal.open('student-modal');
+    openModal('student-modal');
 }
 
 function openEditModal(student) {
@@ -211,56 +334,108 @@ function openEditModal(student) {
     document.getElementById('m-user-id').value = student.user_id;
     document.getElementById('modal-title').textContent = 'Modify Student Record';
     
-    document.getElementById('m-name').value = student.name;
-    document.getElementById('m-email').value = student.email;
+    document.getElementById('m-name').value = student.name || '';
+    document.getElementById('m-email').value = student.email || '';
     document.getElementById('m-phone').value = student.phone || '';
-    document.getElementById('m-student-number').value = student.student_number;
+    document.getElementById('m-student-number').value = student.student_number || '';
     document.getElementById('m-department').value = student.department || '';
     document.getElementById('m-semester').value = student.semester || '';
     document.getElementById('m-building-id').value = student.building_id || '';
     document.getElementById('m-room-no').value = student.room_no || '';
-    document.getElementById('m-status').value = student.status;
+    document.getElementById('m-status').value = student.status || 'active';
     
-    // Hide or make password optional during edits
     document.getElementById('m-password').removeAttribute('required');
     document.getElementById('m-password').placeholder = 'Leave blank to keep current';
     
-    Modal.open('student-modal');
+    openModal('student-modal');
 }
 
 async function saveStudent(e) {
     e.preventDefault();
-    if (!validateForm('student-form')) return;
+    if (typeof validateForm === 'function' && !validateForm('student-form')) return;
     
     const formData = new FormData(document.getElementById('student-form'));
-    const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/student_crud.php', 'POST', formData);
-    if (res.success) {
-        Toast.success('Done', res.message);
-        Modal.close('student-modal');
-        setTimeout(() => location.reload(), 1000);
-    } else {
-        Toast.error('Failure', res.message);
+    const targetUrl = '../../backend/admin/ajax/student_crud.php';
+
+    try {
+        let res;
+        if (typeof ajaxRequest === 'function') {
+            res = await ajaxRequest(targetUrl, 'POST', formData);
+        } else {
+            const fetchRes = await fetch(targetUrl, { method: 'POST', body: formData });
+            res = await fetchRes.json();
+        }
+
+        if (res && res.success) {
+            if (window.Toast && typeof Toast.success === 'function') {
+                Toast.success('Done', res.message);
+            } else {
+                alert(res.message || 'Student saved successfully!');
+            }
+            closeModal('student-modal');
+            setTimeout(() => location.reload(), 800);
+        } else {
+            const errMsg = (res && res.message) ? res.message : 'Action failed.';
+            if (window.Toast && typeof Toast.error === 'function') {
+                Toast.error('Failure', errMsg);
+            } else {
+                alert('Error: ' + errMsg);
+            }
+        }
+    } catch (err) {
+        alert('A network or server error occurred.');
+        console.error(err);
     }
 }
 
 function handleDelete(id) {
-    confirmAction(
-        'Delete Student Record', 
-        'Are you sure you want to permanently erase this student directory record? All filed complaints from this student will also be affected.',
-        async () => {
-            const formData = new FormData();
-            formData.append('action', 'delete');
-            formData.append('user_id', id);
-            
-            const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/student_crud.php', 'POST', formData);
-            if (res.success) {
-                Toast.success('Done', res.message);
-                setTimeout(() => location.reload(), 1000);
+    const performDelete = async () => {
+        const formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append('user_id', id);
+        const targetUrl = '../../backend/admin/ajax/student_crud.php';
+        
+        try {
+            let res;
+            if (typeof ajaxRequest === 'function') {
+                res = await ajaxRequest(targetUrl, 'POST', formData);
             } else {
-                Toast.error('Failure', res.message);
+                const fetchRes = await fetch(targetUrl, { method: 'POST', body: formData });
+                res = await fetchRes.json();
             }
+
+            if (res && res.success) {
+                if (window.Toast && typeof Toast.success === 'function') {
+                    Toast.success('Done', res.message);
+                } else {
+                    alert(res.message || 'Record deleted successfully.');
+                }
+                setTimeout(() => location.reload(), 800);
+            } else {
+                const errMsg = (res && res.message) ? res.message : 'Delete failed.';
+                if (window.Toast && typeof Toast.error === 'function') {
+                    Toast.error('Failure', errMsg);
+                } else {
+                    alert('Error: ' + errMsg);
+                }
+            }
+        } catch (err) {
+            alert('A network or server error occurred during deletion.');
+            console.error(err);
         }
-    );
+    };
+
+    if (typeof confirmAction === 'function') {
+        confirmAction(
+            'Delete Student Record', 
+            'Are you sure you want to permanently erase this student record?',
+            performDelete
+        );
+    } else {
+        if (confirm('Are you sure you want to permanently erase this student record?')) {
+            performDelete();
+        }
+    }
 }
 </script>
 ";

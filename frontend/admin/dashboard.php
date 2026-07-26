@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Dashboard (Frontend)
+ * Admin Dashboard
  * Campus Complaint & Maintenance Management System
  */
 require_once __DIR__ . '/../../backend/config/db.php';
@@ -11,19 +11,19 @@ requireLogin('admin');
 
 try {
     // 1. Core Metrics
-    $totalComplaints = $pdo->query("SELECT COUNT(*) FROM complaints")->fetchColumn();
+    $totalComplaints = (int)$pdo->query("SELECT COUNT(*) FROM complaints")->fetchColumn();
     
     $statusPendingId = getStatusIdByName($pdo, 'Pending') ?: 1;
-    $pendingComplaints = $pdo->query("SELECT COUNT(*) FROM complaints WHERE status_id = $statusPendingId")->fetchColumn();
+    $pendingComplaints = (int)$pdo->query("SELECT COUNT(*) FROM complaints WHERE status_id = $statusPendingId")->fetchColumn();
     
-    $inProgressCount = $pdo->query(
+    $inProgressCount = (int)$pdo->query(
         "SELECT COUNT(*) FROM complaints c
          JOIN complaint_status cs ON c.status_id = cs.status_id
          WHERE cs.status_name IN ('Assigned', 'Accepted', 'In Progress')"
     )->fetchColumn();
     
     $statusResolvedId = getStatusIdByName($pdo, 'Resolved') ?: 5;
-    $resolvedComplaints = $pdo->query("SELECT COUNT(*) FROM complaints WHERE status_id = $statusResolvedId")->fetchColumn();
+    $resolvedComplaints = (int)$pdo->query("SELECT COUNT(*) FROM complaints WHERE status_id = $statusResolvedId")->fetchColumn();
 
     // 2. Fetch Category distribution
     $categoryData = $pdo->query(
@@ -43,7 +43,7 @@ try {
          ORDER BY count DESC"
     )->fetchAll();
 
-    // 4. Staff Performance Index (tasks completed, average rating)
+    // 4. Staff Performance Index
     $staffPerf = $pdo->query(
         "SELECT u.name, ms.employee_id, ms.specialization,
                 COUNT(CASE WHEN a.assignment_status = 'Completed' THEN 1 END) as completed_tasks,
@@ -58,12 +58,25 @@ try {
          LIMIT 5"
     )->fetchAll();
 
+    // 5. Recent Complaints
+    $recentComplaints = $pdo->query(
+        "SELECT c.*, cs.status_name, cc.category_name, b.building_name, u.name as student_name
+         FROM complaints c
+         JOIN complaint_status cs ON c.status_id = cs.status_id
+         JOIN complaint_categories cc ON c.category_id = cc.category_id
+         JOIN buildings b ON c.building_id = b.building_id
+         JOIN students s ON c.student_id = s.student_id
+         JOIN users u ON s.user_id = u.user_id
+         ORDER BY c.created_at DESC
+         LIMIT 6"
+    )->fetchAll();
+
 } catch (Exception $e) {
     $totalComplaints = $pendingComplaints = $inProgressCount = $resolvedComplaints = 0;
-    $categoryData = $buildingData = $staffPerf = [];
+    $categoryData = $buildingData = $staffPerf = $recentComplaints = [];
 }
 
-// Convert PHP arrays to JSON for ChartJS consumption
+// Convert PHP arrays to JSON for ChartJS
 $chartCategories = [];
 $chartCategoryCounts = [];
 foreach ($categoryData as $cat) {
@@ -88,7 +101,7 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="stat-card stat-primary">
         <div class="stat-card-top">
             <div class="stat-label">Total Logged</div>
-            <div class="stat-icon"><i class="fas fa-folder"></i></div>
+            <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
         </div>
         <div class="stat-value" data-count="<?= $totalComplaints ?>">0</div>
         <div class="stat-change">Total tickets in system</div>
@@ -100,16 +113,16 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="stat-icon"><i class="fas fa-clock"></i></div>
         </div>
         <div class="stat-value" data-count="<?= $pendingComplaints ?>">0</div>
-        <div class="stat-change">Need assignments</div>
+        <div class="stat-change">Awaiting assignment</div>
     </div>
 
     <div class="stat-card stat-info">
         <div class="stat-card-top">
             <div class="stat-label">Active Repairs</div>
-            <div class="stat-icon"><i class="fas fa-spinner fa-spin-slow"></i></div>
+            <div class="stat-icon"><i class="fas fa-spinner"></i></div>
         </div>
         <div class="stat-value" data-count="<?= $inProgressCount ?>">0</div>
-        <div class="stat-change">Technicians working</div>
+        <div class="stat-change">In progress by technicians</div>
     </div>
 
     <div class="stat-card stat-success">
@@ -118,84 +131,73 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
         </div>
         <div class="stat-value" data-count="<?= $resolvedComplaints ?>">0</div>
-        <div class="stat-change">Completed & closed</div>
+        <div class="stat-change">Successfully closed</div>
     </div>
 </div>
 
 <!-- ─── Charts Display Section ─── -->
-<div class="charts-grid stagger-in mt-lg">
+<div class="grid-2 stagger-in mt-lg" style="grid-template-columns: 1fr 1fr;">
     <!-- Chart 1: Category Distribution -->
-    <div class="chart-card">
-        <div class="chart-header">
+    <div class="card">
+        <div class="card-header">
             <h3><i class="fas fa-chart-pie text-gradient"></i> By Complaint Category</h3>
         </div>
-        <div class="chart-wrapper">
-            <canvas id="categoryChart"></canvas>
+        <div class="card-body">
+            <div style="height: 260px; position: relative;">
+                <canvas id="categoryChart"></canvas>
+            </div>
         </div>
     </div>
 
     <!-- Chart 2: Building Distribution -->
-    <div class="chart-card">
-        <div class="chart-header">
+    <div class="card">
+        <div class="card-header">
             <h3><i class="fas fa-chart-bar text-gradient"></i> By Campus Location</h3>
         </div>
-        <div class="chart-wrapper">
-            <canvas id="buildingChart"></canvas>
+        <div class="card-body">
+            <div style="height: 260px; position: relative;">
+                <canvas id="buildingChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- ─── Performance Table & Quick Links ─── -->
+<!-- ─── Recent Complaints & Quick Links ─── -->
 <div class="grid-3 stagger-in mt-lg" style="grid-template-columns: 2fr 1fr;">
-    <!-- Staff Performance -->
+    <!-- Recent Complaints -->
     <div class="card">
         <div class="card-header">
-            <h3><i class="fas fa-user-shield text-gradient"></i> Staff Performance Rating</h3>
-            <a href="<?= FRONTEND_URL ?>/admin/manage_staff.php" class="btn btn-outline btn-sm">Manage Staff</a>
+            <h3><i class="fas fa-history text-gradient"></i> Recent Complaint Submissions</h3>
+            <a href="complaints.php" class="btn btn-outline btn-sm">View All Complaints</a>
         </div>
         <div class="card-body">
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Staff Representative</th>
-                            <th>ID Code</th>
-                            <th>Specialization</th>
-                            <th>Resolved Jobs</th>
-                            <th>Customer Satisfaction</th>
+                            <th>Ref ID</th>
+                            <th>Student</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($staffPerf)): ?>
+                        <?php if (empty($recentComplaints)): ?>
                             <tr>
                                 <td colspan="5" class="table-empty">
-                                    <i class="fas fa-users-slash"></i>
-                                    <p>No active technicians logged in directory.</p>
+                                    <i class="fas fa-inbox"></i>
+                                    <p>No complaints submitted yet.</p>
                                 </td>
                             </tr>
                         <?php else: ?>
-                            <?php foreach ($staffPerf as $staff): ?>
+                            <?php foreach ($recentComplaints as $rc): ?>
                                 <tr>
-                                    <td>
-                                        <div class="font-semibold text-primary"><?= sanitize($staff['name']) ?></div>
-                                    </td>
-                                    <td><?= sanitize($staff['employee_id']) ?></td>
-                                    <td><?= sanitize($staff['specialization'] ?: 'General') ?></td>
-                                    <td><strong class="text-success"><?= $staff['completed_tasks'] ?></strong></td>
-                                    <td>
-                                        <?php if ($staff['avg_rating']): ?>
-                                            <div style="display: flex; align-items: center; gap: 8px;">
-                                                <div class="stars-display">
-                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <i class="fas fa-star star <?= $i <= round($staff['avg_rating']) ? 'filled' : '' ?>" style="font-size: 10px;"></i>
-                                                    <?php endfor; ?>
-                                                </div>
-                                                <span class="text-sm font-bold text-warning"><?= $staff['avg_rating'] ?></span>
-                                            </div>
-                                        <?php else: ?>
-                                            <span class="text-muted text-sm">No satisfaction index</span>
-                                        <?php endif; ?>
-                                    </td>
+                                    <td><strong class="text-primary">#CMP-<?= str_pad($rc['complaint_id'], 4, '0', STR_PAD_LEFT) ?></strong></td>
+                                    <td><?= sanitize($rc['student_name']) ?></td>
+                                    <td><?= sanitize($rc['title']) ?></td>
+                                    <td><?= sanitize($rc['category_name']) ?></td>
+                                    <td><?= getStatusBadge($rc['status_name']) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -205,33 +207,27 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 
-    <!-- Quick Operations Control -->
+    <!-- Directory Quick Controls -->
     <div class="card">
         <div class="card-header">
-            <h3><i class="fas fa-cogs text-gradient"></i> Directory Controls</h3>
+            <h3><i class="fas fa-th-large text-gradient"></i> Quick Controls</h3>
         </div>
-        <div class="card-body" style="display: flex; flex-direction: column; gap: 16px;">
-            <a href="<?= FRONTEND_URL ?>/admin/complaints.php" class="btn btn-primary w-full">
-                <i class="fas fa-clipboard-list"></i> Ticket Dispatch Control
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="manage_students.php" class="btn btn-outline w-full" style="justify-content: flex-start;">
+                <i class="fas fa-user-graduate text-primary"></i> Manage Students
             </a>
-            <a href="<?= FRONTEND_URL ?>/admin/reports.php" class="btn btn-success w-full">
-                <i class="fas fa-chart-line"></i> Statistics & Reports
+            <a href="manage_staff.php" class="btn btn-outline w-full" style="justify-content: flex-start;">
+                <i class="fas fa-hard-hat text-primary"></i> Manage Technicians
             </a>
-            <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 8px;">
-                <h4 style="font-size: 13px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.05em;">
-                    System Overview
-                </h4>
-                <ul style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-secondary);">
-                    <li class="flex items-center justify-between">
-                        <span>Active categories:</span>
-                        <strong><?= count($chartCategories) ?></strong>
-                    </li>
-                    <li class="flex items-center justify-between">
-                        <span>Campus locations:</span>
-                        <strong><?= count($chartBuildings) ?></strong>
-                    </li>
-                </ul>
-            </div>
+            <a href="manage_categories.php" class="btn btn-outline w-full" style="justify-content: flex-start;">
+                <i class="fas fa-tags text-primary"></i> Manage Categories
+            </a>
+            <a href="manage_locations.php" class="btn btn-outline w-full" style="justify-content: flex-start;">
+                <i class="fas fa-map-marker-alt text-primary"></i> Manage Locations
+            </a>
+            <a href="reports.php" class="btn btn-primary w-full" style="justify-content: flex-start; margin-top: 8px;">
+                <i class="fas fa-chart-bar"></i> Analytics & Reports
+            </a>
         </div>
     </div>
 </div>
@@ -242,69 +238,63 @@ $extraScripts = "
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Category Chart
-    const ctxCat = document.getElementById('categoryChart').getContext('2d');
-    new Chart(ctxCat, {
-        type: 'doughnut',
-        data: {
-            labels: " . json_encode($chartCategories) . ",
-            datasets: [{
-                data: " . json_encode($chartCategoryCounts) . ",
-                backgroundColor: [
-                    '#6366f1', '#8b5cf6', '#06b6d4', '#ec4899', '#3b82f6', 
-                    '#10b981', '#f59e0b', '#ef4444', '#14b8a6', '#f43f5e'
-                ],
-                borderColor: '#111827',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: '#94a3b8',
-                        font: { family: 'Inter', size: 11 }
+    const ctxCat = document.getElementById('categoryChart')?.getContext('2d');
+    if (ctxCat) {
+        new Chart(ctxCat, {
+            type: 'doughnut',
+            data: {
+                labels: " . json_encode($chartCategories) . ",
+                datasets: [{
+                    data: " . json_encode($chartCategoryCounts) . ",
+                    backgroundColor: [
+                        '#4f46e5', '#7c3aed', '#0891b2', '#2563eb', '#db2777', 
+                        '#059669', '#d97706', '#dc2626', '#14b8a6', '#f43f5e'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { font: { family: 'Inter', size: 12 } }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
     // 2. Building Chart
-    const ctxBld = document.getElementById('buildingChart').getContext('2d');
-    new Chart(ctxBld, {
-        type: 'bar',
-        data: {
-            labels: " . json_encode($chartBuildings) . ",
-            datasets: [{
-                label: 'Complaints',
-                data: " . json_encode($chartBuildingCounts) . ",
-                backgroundColor: 'rgba(99, 102, 241, 0.85)',
-                hoverBackgroundColor: '#6366f1',
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    ticks: { color: '#94a3b8', font: { family: 'Inter' } },
-                    grid: { color: 'rgba(148,163,184,0.05)' }
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: '#94a3b8', font: { family: 'Inter' } },
-                    grid: { color: 'rgba(148,163,184,0.05)' }
-                }
+    const ctxBld = document.getElementById('buildingChart')?.getContext('2d');
+    if (ctxBld) {
+        new Chart(ctxBld, {
+            type: 'bar',
+            data: {
+                labels: " . json_encode($chartBuildings) . ",
+                datasets: [{
+                    label: 'Complaints',
+                    data: " . json_encode($chartBuildingCounts) . ",
+                    backgroundColor: 'rgba(79, 70, 229, 0.85)',
+                    hoverBackgroundColor: '#4f46e5',
+                    borderRadius: 6
+                }]
             },
-            plugins: {
-                legend: { display: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { font: { family: 'Inter' } } },
+                    y: { beginAtZero: true, ticks: { font: { family: 'Inter' }, precision: 0 } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
             }
-        }
-    });
+        });
+    }
 });
 </script>
 ";

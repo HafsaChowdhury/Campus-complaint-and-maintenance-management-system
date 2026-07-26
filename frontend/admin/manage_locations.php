@@ -1,11 +1,11 @@
 <?php
 /**
- * Manage Locations & Buildings (Frontend)
+ * Manage Locations & Buildings
  * Campus Complaint & Maintenance Management System
  */
-require_once __DIR__ . '/../../backend/config/db.php';
-require_once __DIR__ . '/../../backend/includes/auth.php';
-require_once __DIR__ . '/../../backend/includes/functions.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 requireLogin('admin');
 
@@ -140,7 +140,7 @@ async function saveBuilding(e) {
     if (!validateForm('building-form')) return;
 
     const formData = new FormData(document.getElementById('building-form'));
-    const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/location_crud.php', 'POST', formData);
+    const res = await ajaxRequest('" . BASE_URL . "/admin/ajax/location_crud.php', 'POST', formData);
     if (res.success) {
         Toast.success('Success', res.message);
         Modal.close('building-modal');
@@ -164,7 +164,7 @@ function handleDelete(id, count) {
             formData.append('action', 'delete');
             formData.append('building_id', id);
 
-            const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/location_crud.php', 'POST', formData);
+            const res = await ajaxRequest('" . BASE_URL . "/admin/ajax/location_crud.php', 'POST', formData);
             if (res.success) {
                 Toast.success('Success', res.message);
                 setTimeout(() => location.reload(), 1000);

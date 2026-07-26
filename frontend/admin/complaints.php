@@ -1,11 +1,11 @@
 <?php
 /**
- * Admin Ticket Dispatch Center (Frontend)
+ * Admin Ticket Dispatch Center
  * Campus Complaint & Maintenance Management System
  */
-require_once __DIR__ . '/../../backend/config/db.php';
-require_once __DIR__ . '/../../backend/includes/auth.php';
-require_once __DIR__ . '/../../backend/includes/functions.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 requireLogin('admin');
 
@@ -54,13 +54,14 @@ try {
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $pagination = paginate($totalItems, 10, $page);
 
-$offset = (int)$pagination['offset'];
-$perPage = (int)$pagination['per_page'];
+// Add limits
+$queryParams[] = $pagination['offset'];
+$queryParams[] = $pagination['per_page'];
 
 try {
     $stmt = $pdo->prepare(
         "SELECT c.*, cs.status_name, cc.category_name, b.building_name, u.name as student_name,
-                a.assignment_id, a.assignment_status, a.repair_notes, a.repair_image, tu.name as assigned_staff_name
+                a.assignment_id, a.assignment_status, tu.name as assigned_staff_name
          FROM complaints c
          JOIN complaint_status cs ON c.status_id = cs.status_id
          JOIN complaint_categories cc ON c.category_id = cc.category_id
@@ -72,7 +73,7 @@ try {
          LEFT JOIN users tu ON ms.user_id = tu.user_id
          $whereClause
          ORDER BY c.created_at DESC
-         LIMIT {$offset}, {$perPage}"
+         LIMIT ?, ?"
     );
     $stmt->execute($queryParams);
     $complaints = $stmt->fetchAll();
@@ -89,15 +90,15 @@ try {
     $categories = $buildings = $staffList = [];
 }
 
-$pageTitle = "Manage Complaints";
+$pageTitle = "Dispatch Center";
 $currentPage = "complaints";
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- Filter & Search Card -->
+<!-- Filters Card -->
 <div class="card mb-lg stagger-in">
     <div class="card-body">
-        <form method="GET" action="<?= FRONTEND_URL ?>/admin/complaints.php" class="table-filters" id="filter-form">
+        <form method="GET" action="<?= BASE_URL ?>/admin/complaints.php" class="table-filters" id="filter-form">
             <div class="form-group mb-0">
                 <select name="status" class="form-control" onchange="document.getElementById('filter-form').submit()">
                     <option value="">All Statuses</option>
@@ -143,7 +144,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <?php if (!empty($statusFilter) || !empty($categoryFilter) || !empty($priorityFilter) || !empty($buildingFilter)): ?>
-                <a href="<?= FRONTEND_URL ?>/admin/complaints.php" class="btn btn-outline btn-sm">Clear Filters</a>
+                <a href="<?= BASE_URL ?>/admin/complaints.php" class="btn btn-outline btn-sm">Clear Filters</a>
             <?php endif; ?>
         </form>
     </div>
@@ -159,7 +160,6 @@ require_once __DIR__ . '/../includes/header.php';
                         <th>Complaint Ref</th>
                         <th>Student Name</th>
                         <th>Complaint details</th>
-                        <th>Photo</th>
                         <th>Category</th>
                         <th>Location</th>
                         <th>Priority</th>
@@ -171,7 +171,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <tbody>
                     <?php if (empty($complaints)): ?>
                         <tr>
-                            <td colspan="10" class="table-empty">
+                            <td colspan="9" class="table-empty">
                                 <i class="fas fa-clipboard-list"></i>
                                 <p>No campus complaint dispatches logged matching filter criteria.</p>
                             </td>
@@ -186,13 +186,6 @@ require_once __DIR__ . '/../includes/header.php';
                                     <div class="text-sm text-muted text-truncate" style="max-width: 200px;">
                                         <?= sanitize($c['description']) ?>
                                     </div>
-                                </td>
-                                <td>
-                                    <?php if (!empty($c['image'])): ?>
-                                        <img src="<?= BACKEND_URL ?>/uploads/complaints/<?= sanitize($c['image']) ?>" alt="Reference" style="width: 42px; height: 42px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--border); cursor: pointer;" onclick="window.open(this.src)">
-                                    <?php else: ?>
-                                        <span class="text-muted text-sm">No photo</span>
-                                    <?php endif; ?>
                                 </td>
                                 <td><?= sanitize($c['category_name']) ?></td>
                                 <td><?= sanitize($c['building_name']) ?></td>
@@ -237,7 +230,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Render Pagination -->
         <?php 
-            $paginationUrl = FRONTEND_URL . "/admin/complaints.php?status=" . urlencode($statusFilter) . "&category=" . urlencode($categoryFilter) . "&priority=" . urlencode($priorityFilter) . "&building=" . urlencode($buildingFilter);
+            $paginationUrl = BASE_URL . "/admin/complaints.php?status=" . urlencode($statusFilter) . "&category=" . urlencode($categoryFilter) . "&priority=" . urlencode($priorityFilter) . "&building=" . urlencode($buildingFilter);
             echo renderPagination($pagination, $paginationUrl);
         ?>
     </div>
@@ -308,16 +301,9 @@ require_once __DIR__ . '/../includes/header.php';
                         <p id="v-description" style="color:var(--text-secondary); padding:16px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-md); font-size:13.5px; line-height:1.6; white-space:pre-wrap;"></p>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div class="detail-section text-center" id="v-image-container" style="display:none;">
-                            <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; text-align:left;">Student Issue Reference Photo</h4>
-                            <img id="v-image" src="#" alt="Student preview image" class="complaint-image" style="max-height: 220px; display:inline-block; width:100%; object-fit:cover; border-radius:var(--radius-md); border: 1px solid var(--border); cursor:pointer;" onclick="window.open(this.src)">
-                        </div>
-
-                        <div class="detail-section text-center" id="v-repair-image-container" style="display:none;">
-                            <h4 style="font-size:12px; font-weight:700; color:var(--text-accent); margin-bottom:8px; text-transform:uppercase; text-align:left;">Technician Resolution Photo</h4>
-                            <img id="v-repair-image" src="#" alt="Repair resolution image" class="complaint-image" style="max-height: 220px; display:inline-block; width:100%; object-fit:cover; border-radius:var(--radius-md); border: 1px solid var(--border); cursor:pointer;" onclick="window.open(this.src)">
-                        </div>
+                    <div class="detail-section text-center" id="v-image-container" style="display:none;">
+                        <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; text-align:left;">Attachment Reference</h4>
+                        <img id="v-image" src="#" alt="Dispatch preview image" class="complaint-image" style="max-height: 250px; display:inline-block; width:auto; border-radius:var(--radius-md);">
                     </div>
                 </div>
             </div>
@@ -341,7 +327,7 @@ async function assignStaff(e) {
     if (!validateForm('dispatch-form')) return;
 
     const formData = new FormData(document.getElementById('dispatch-form'));
-    const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/assign_complaint.php', 'POST', formData);
+    const res = await ajaxRequest('" . BASE_URL . "/admin/assign_complaint.php', 'POST', formData);
     if (res.success) {
         Toast.success('Dispatched', res.message);
         Modal.close('dispatch-modal');
@@ -357,7 +343,7 @@ async function updatePriority(id, value) {
     formData.append('complaint_id', id);
     formData.append('priority', value);
 
-    const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/complaint_actions.php', 'POST', formData);
+    const res = await ajaxRequest('" . BASE_URL . "/admin/ajax/complaint_actions.php', 'POST', formData);
     if (res.success) {
         Toast.success('Updated', res.message);
     } else {
@@ -375,22 +361,11 @@ function viewTicket(c) {
     const imgElement = document.getElementById('v-image');
     
     if (c.image) {
-        imgElement.src = '" . BACKEND_URL . "/uploads/complaints/' + c.image;
+        imgElement.src = '" . BASE_URL . "/uploads/complaints/' + c.image;
         imgContainer.style.display = 'block';
     } else {
         imgElement.src = '#';
         imgContainer.style.display = 'none';
-    }
-
-    const repairContainer = document.getElementById('v-repair-image-container');
-    const repairElement = document.getElementById('v-repair-image');
-
-    if (c.repair_image) {
-        repairElement.src = '" . BACKEND_URL . "/uploads/repairs/' + c.repair_image;
-        repairContainer.style.display = 'block';
-    } else {
-        repairElement.src = '#';
-        repairContainer.style.display = 'none';
     }
 
     Modal.open('ticket-modal');

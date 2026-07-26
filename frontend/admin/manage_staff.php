@@ -1,11 +1,11 @@
 <?php
 /**
- * Manage Maintenance Staff Directory (Frontend)
+ * Manage Maintenance Staff Directory
  * Campus Complaint & Maintenance Management System
  */
-require_once __DIR__ . '/../../backend/config/db.php';
-require_once __DIR__ . '/../../backend/includes/auth.php';
-require_once __DIR__ . '/../../backend/includes/functions.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 requireLogin('admin');
 
@@ -218,7 +218,7 @@ async function saveStaff(e) {
     if (!validateForm('staff-form')) return;
     
     const formData = new FormData(document.getElementById('staff-form'));
-    const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/staff_crud.php', 'POST', formData);
+    const res = await ajaxRequest('" . BASE_URL . "/admin/ajax/staff_crud.php', 'POST', formData);
     if (res.success) {
         Toast.success('Done', res.message);
         Modal.close('staff-modal');
@@ -237,7 +237,7 @@ function handleDelete(id) {
             formData.append('action', 'delete');
             formData.append('user_id', id);
             
-            const res = await ajaxRequest('" . BACKEND_URL . "/admin/ajax/staff_crud.php', 'POST', formData);
+            const res = await ajaxRequest('" . BASE_URL . "/admin/ajax/staff_crud.php', 'POST', formData);
             if (res.success) {
                 Toast.success('Done', res.message);
                 setTimeout(() => location.reload(), 1000);
