@@ -1,8 +1,4 @@
 <?php
-/**
- * Maintenance Staff Work History (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -25,7 +21,6 @@ if (!empty($searchFilter)) {
 }
 
 try {
-    // Pagination setup
     $countStmt = $pdo->prepare(
         "SELECT COUNT(*) FROM assignments a
          JOIN complaints c ON a.complaint_id = c.complaint_id
@@ -74,7 +69,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 <?php endif; ?>
 
-<!-- Filter & Search Card -->
 <div class="card mb-lg stagger-in">
     <div class="card-body">
         <form method="GET" action="<?= FRONTEND_URL ?>/staff/completed_tasks.php" class="table-filters">
@@ -90,7 +84,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- Task History Table -->
 <div class="card stagger-in">
     <div class="card-body">
         <div class="table-container">
@@ -159,7 +152,6 @@ require_once __DIR__ . '/../includes/header.php';
             </table>
         </div>
 
-        <!-- Render Pagination -->
         <?php 
             $paginationUrl = FRONTEND_URL . "/staff/completed_tasks.php?search=" . urlencode($searchFilter);
             echo renderPagination($pagination, $paginationUrl);

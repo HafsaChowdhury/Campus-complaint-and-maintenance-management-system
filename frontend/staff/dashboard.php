@@ -1,8 +1,4 @@
 <?php
-/**
- * Maintenance Staff Dashboard (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -13,7 +9,6 @@ $staffId = $_SESSION['staff_id'];
 $user = getCurrentUser();
 
 try {
-    // 1. Total assigned tasks (excluding rejected)
     $stmt = $pdo->prepare(
         "SELECT COUNT(*) FROM assignments 
          WHERE staff_id = ? AND assignment_status != 'Rejected'"
@@ -21,7 +16,6 @@ try {
     $stmt->execute([$staffId]);
     $assignedTasks = $stmt->fetchColumn();
 
-    // 2. Completed Tasks Today
     $stmt = $pdo->prepare(
         "SELECT COUNT(*) FROM assignments 
          WHERE staff_id = ? AND assignment_status = 'Completed' 
@@ -30,7 +24,6 @@ try {
     $stmt->execute([$staffId]);
     $completedToday = $stmt->fetchColumn();
 
-    // 3. Pending/New Tasks (Assigned but not yet Accepted or Rejected)
     $stmt = $pdo->prepare(
         "SELECT COUNT(*) FROM assignments 
          WHERE staff_id = ? AND assignment_status = 'Assigned'"
@@ -38,7 +31,6 @@ try {
     $stmt->execute([$staffId]);
     $pendingTasks = $stmt->fetchColumn();
 
-    // 4. In Progress Tasks (Accepted)
     $stmt = $pdo->prepare(
         "SELECT COUNT(*) FROM assignments 
          WHERE staff_id = ? AND assignment_status = 'Accepted'"
@@ -46,7 +38,6 @@ try {
     $stmt->execute([$staffId]);
     $inProgressTasks = $stmt->fetchColumn();
 
-    // Fetch active assignments list
     $stmt = $pdo->prepare(
         "SELECT a.*, c.title, c.description, c.priority, cc.category_name, b.building_name, cs.status_name
          FROM assignments a
@@ -70,7 +61,6 @@ $currentPage = "dashboard";
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- ─── Metrics Grid ─── -->
 <div class="stats-grid stagger-in">
     <div class="stat-card stat-primary">
         <div class="stat-card-top">
@@ -109,7 +99,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- ─── Action Center / Active Queue ─── -->
 <div class="card stagger-in mt-lg">
     <div class="card-header">
         <h3><i class="fas fa-bolt text-gradient"></i> Job Dispatches & Queue</h3>

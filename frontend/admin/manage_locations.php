@@ -1,8 +1,4 @@
 <?php
-/**
- * Manage Locations & Buildings
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -10,7 +6,6 @@ require_once __DIR__ . '/../includes/functions.php';
 requireLogin('admin');
 
 try {
-    // Count active complaints per building to prevent accidental database orphaned records
     $stmt = $pdo->query(
         "SELECT b.*, COUNT(c.complaint_id) as complaint_count 
          FROM buildings b

@@ -1,15 +1,10 @@
 <?php
-/**
- * Reports & Statistics Generator (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
 
 requireLogin('admin');
 
-// Default date range (last 30 days to today)
 $startDate = sanitize($_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days')));
 $endDate = sanitize($_GET['end_date'] ?? date('Y-m-d'));
 $categoryFilter = sanitize($_GET['category'] ?? '');
@@ -28,7 +23,6 @@ if (!empty($buildingFilter)) {
     $queryParams[] = (int)$buildingFilter;
 }
 
-// ─── CSV Export Hook ───────────────────────────────────────────
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     try {
         $stmt = $pdo->prepare(
@@ -73,7 +67,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     }
 }
 
-// ─── Standard Report Statistics View ───────────────────────────
+
 try {
     // 1. Total Complaints in selection
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM complaints c $whereClause");

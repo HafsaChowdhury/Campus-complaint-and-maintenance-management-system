@@ -1,7 +1,4 @@
 <?php
-/**
- * View & Track Complaint Status (Frontend)
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -90,9 +87,7 @@ require_once __DIR__ . '/../includes/header.php';
     </a>
 </div>
 
-<div class="grid grid-3" style="grid-template-columns: 2fr 1fr;">
-    <!-- Main Column -->
-    <div>
+<div class="grid grid-3" style="grid-template-columns: 2fr 1fr;">    <div>
         <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
                 <div class="card-title"><i class="fas fa-file-alt text-accent"></i> Complaint Details (#CMP-<?= str_pad($complaint['complaint_id'], 4, '0', STR_PAD_LEFT) ?>)</div>
@@ -136,7 +131,6 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <!-- Feedback Panel -->
         <?php if ($complaint['status_name'] === 'Resolved' || $complaint['status_name'] === 'Closed'): ?>
             <div class="card">
                 <div class="card-header">
@@ -180,7 +174,6 @@ require_once __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </div>
 
-    <!-- Sidebar Column -->
     <div>
         <?php if ($assignment): ?>
             <div class="card" style="margin-bottom: 24px;">

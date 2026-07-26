@@ -1,8 +1,4 @@
 <?php
-/**
- * Admin Dashboard Stats AJAX Endpoint (Backend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -10,7 +6,6 @@ require_once __DIR__ . '/../../includes/functions.php';
 requireLogin('admin');
 
 try {
-    // 1. Complaint statuses count
     $statusData = $pdo->query(
         "SELECT cs.status_name, COUNT(c.complaint_id) as count 
          FROM complaint_status cs
@@ -18,7 +13,6 @@ try {
          GROUP BY cs.status_id"
     )->fetchAll();
 
-    // 2. Complaint category distributions
     $categoryData = $pdo->query(
         "SELECT cc.category_name, COUNT(c.complaint_id) as count 
          FROM complaint_categories cc
@@ -26,7 +20,6 @@ try {
          GROUP BY cc.category_id"
     )->fetchAll();
 
-    // 3. Location distribution
     $locationData = $pdo->query(
         "SELECT b.building_name, COUNT(c.complaint_id) as count 
          FROM buildings b

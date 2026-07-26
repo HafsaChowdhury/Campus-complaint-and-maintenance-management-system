@@ -1,7 +1,4 @@
 <?php
-/**
- * Setup Script — Run once after importing SQL file
- */
 require_once __DIR__ . '/config/db.php';
 ?>
 <!DOCTYPE html>
@@ -31,9 +28,9 @@ require_once __DIR__ . '/config/db.php';
         try {
             $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE email = 'admin@campus.edu'");
             $stmt->execute([$adminPassword]);
-            $messages[] = '✅ Admin password set to <code>admin123</code>';
+            $messages[] = ' Admin password set to <code>admin123</code>';
         } catch (Exception $e) {
-            $errors[] = '❌ Failed to update admin password: ' . $e->getMessage();
+            $errors[] = ' Failed to update admin password: ' . $e->getMessage();
         }
 
         // 2. Create upload directories
@@ -44,12 +41,13 @@ require_once __DIR__ . '/config/db.php';
         foreach ($dirs as $dir) {
             if (!is_dir($dir)) {
                 if (mkdir($dir, 0777, true)) {
-                    $messages[] = '✅ Created directory: ' . basename(dirname($dir)) . '/' . basename($dir);
+                    $messages[] = ' Created directory: ' . basename(dirname($dir)) . '/' . basename($dir);
                 } else {
-                    $errors[] = '❌ Failed to create: ' . $dir;
+                    $errors[] = '
+                     Failed to create: ' . $dir;
                 }
             } else {
-                $messages[] = '✅ Directory exists: ' . basename(dirname($dir)) . '/' . basename($dir);
+                $messages[] = ' Directory exists: ' . basename(dirname($dir)) . '/' . basename($dir);
             }
         }
 
@@ -65,9 +63,9 @@ require_once __DIR__ . '/config/db.php';
 
         foreach ($tables as $table) {
             if (in_array($table, $existingTables)) {
-                $messages[] = '✅ Table <code>' . $table . '</code> exists';
+                $messages[] = ' Table <code>' . $table . '</code> exists';
             } else {
-                $errors[] = '❌ Missing table: <code>' . $table . '</code>';
+                $errors[] = ' Missing table: <code>' . $table . '</code>';
             }
         }
 
@@ -76,7 +74,7 @@ require_once __DIR__ . '/config/db.php';
         $bldCount = $pdo->query("SELECT COUNT(*) FROM buildings")->fetchColumn();
         $statusCount = $pdo->query("SELECT COUNT(*) FROM complaint_status")->fetchColumn();
 
-        $messages[] = "✅ Categories: $catCount | Buildings: $bldCount | Statuses: $statusCount";
+        $messages[] = " Categories: $catCount | Buildings: $bldCount | Statuses: $statusCount";
     }
     ?>
 

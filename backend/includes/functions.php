@@ -1,12 +1,7 @@
 <?php
-/**
- * Shared Utility Functions (Backend)
- * Campus Complaint Management System
- */
 
-// ─── Input Sanitization ────────────────────────────────────────
 
-function sanitize($data) {
+function sanitize($data) {  
     return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
 }
 
@@ -14,7 +9,6 @@ function sanitizeArray($data) {
     return array_map('sanitize', $data);
 }
 
-// ─── File Upload ────────────────────────────────────────────────
 
 function uploadImage($file, $targetDir) {
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -38,7 +32,6 @@ function uploadImage($file, $targetDir) {
         return ['success' => false, 'error' => 'File too large. Maximum size is 5MB.'];
     }
 
-    // Create directory if it doesn't exist
     if (!is_dir($targetDir)) {
         mkdir($targetDir, 0777, true);
     }
@@ -54,7 +47,6 @@ function uploadImage($file, $targetDir) {
     return ['success' => false, 'error' => 'Failed to save uploaded file'];
 }
 
-// ─── Date & Time Formatting ────────────────────────────────────
 
 function formatDate($date, $format = 'M d, Y h:i A') {
     if (empty($date)) return '—';
@@ -78,16 +70,12 @@ function timeAgo($datetime) {
     return date('M d, Y', strtotime($datetime));
 }
 
-// ─── Notifications ─────────────────────────────────────────────
 
 function createNotification($pdo, $userId, $title, $message) {
     $stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)");
     return $stmt->execute([$userId, $title, $message]);
 }
 
-/**
- * Notify all admins about an event
- */
 function notifyAdmins($pdo, $title, $message) {
     $admins = $pdo->query("SELECT user_id FROM users WHERE role = 'admin' AND status = 'active'")->fetchAll();
     foreach ($admins as $admin) {
@@ -95,7 +83,6 @@ function notifyAdmins($pdo, $title, $message) {
     }
 }
 
-// ─── Status & Priority Badges ──────────────────────────────────
 
 function getStatusBadge($status) {
     $map = [
@@ -131,7 +118,6 @@ function getAvailabilityBadge($availability) {
     return '<span class="badge ' . $class . '">' . ucfirst(sanitize($availability)) . '</span>';
 }
 
-// ─── JSON Response Helper ──────────────────────────────────────
 
 function jsonResponse($data, $statusCode = 200) {
     http_response_code($statusCode);
@@ -148,7 +134,6 @@ function jsonError($message = 'Error', $statusCode = 400) {
     jsonResponse(['success' => false, 'message' => $message], $statusCode);
 }
 
-// ─── Data Fetchers ─────────────────────────────────────────────
 
 function getCategories($pdo) {
     return $pdo->query("SELECT * FROM complaint_categories ORDER BY category_name")->fetchAll();
@@ -178,7 +163,6 @@ function getStatusIdByName($pdo, $statusName) {
     return $stmt->fetchColumn();
 }
 
-// ─── Pagination Helper ─────────────────────────────────────────
 
 function paginate($totalItems, $perPage = 10, $currentPage = 1) {
     $totalPages = max(1, ceil($totalItems / $perPage));
@@ -227,7 +211,6 @@ function renderPagination($pagination, $baseUrl) {
     return $html;
 }
 
-// ─── CSRF Protection ───────────────────────────────────────────
 
 function generateCSRF() {
     if (empty($_SESSION['csrf_token'])) {

@@ -1,8 +1,4 @@
 <?php
-/**
- * Detailed Task Dispatch Board (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -30,7 +26,6 @@ if (!empty($priorityFilter)) {
 }
 
 try {
-    // Count total tasks for pagination
     $countStmt = $pdo->prepare(
         "SELECT COUNT(*) FROM assignments a
          JOIN complaints c ON a.complaint_id = c.complaint_id
@@ -79,7 +74,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 <?php endif; ?>
 
-<!-- Filters -->
 <div class="card mb-lg stagger-in">
     <div class="card-body">
         <form method="GET" action="<?= FRONTEND_URL ?>/staff/assigned_tasks.php" class="table-filters" id="filter-form">
@@ -108,7 +102,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- Task Table Card -->
 <div class="card stagger-in">
     <div class="card-body">
         <div class="table-container">
@@ -184,7 +177,6 @@ require_once __DIR__ . '/../includes/header.php';
             </table>
         </div>
 
-        <!-- Render Pagination -->
         <?php 
             $paginationUrl = FRONTEND_URL . "/staff/assigned_tasks.php?status=" . urlencode($statusFilter) . "&priority=" . urlencode($priorityFilter);
             echo renderPagination($pagination, $paginationUrl);

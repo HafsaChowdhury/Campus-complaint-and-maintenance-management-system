@@ -1,8 +1,4 @@
 <?php
-/**
- * Login Page (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../backend/config/db.php';
 require_once __DIR__ . '/../backend/includes/auth.php';
 require_once __DIR__ . '/../backend/includes/functions.php';
@@ -88,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="email" class="form-label">Email Address <span class="required">*</span></label>
                 <div class="input-group">
-                    <input type="email" name="email" id="email" class="form-control" placeholder="username@campus.edu" required autocomplete="email">
+                    <input type="email" name="email" id="email" class="form-control" placeholder="Enter your email address" required autocomplete="email">
                     <i class="fas fa-envelope input-group-icon"></i>
                 </div>
             </div>
@@ -96,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="password" class="form-label">Password <span class="required">*</span></label>
                 <div class="input-group">
-                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
                     <i class="fas fa-lock input-group-icon"></i>
                     <i class="fas fa-eye input-group-icon" style="left: auto; right: 14px; cursor: pointer; pointer-events: auto;" onclick="togglePassword('password', this)"></i>
                 </div>

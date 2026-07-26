@@ -1,7 +1,4 @@
 <?php
-/**
- * Student Registration Page (Frontend)
- */
 require_once __DIR__ . '/../backend/config/db.php';
 require_once __DIR__ . '/../backend/includes/auth.php';
 require_once __DIR__ . '/../backend/includes/functions.php';
@@ -12,7 +9,6 @@ if (isLoggedIn()) {
 
 $error = '';
 
-// Fetch buildings for dropdown
 try {
     $buildings = getBuildings($pdo);
 } catch (Exception $e) {
@@ -86,9 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="<?= FRONTEND_URL ?>/assets/css/style.css">
 </head>
-<body class="auth-page" style="padding: 40px 20px;">
+<body class="auth-page">
 
-    <div class="auth-card" style="max-width: 600px;">
+    <div class="auth-card auth-card-lg">
         <div class="auth-logo">
             <div class="logo-icon">👨‍🎓</div>
             <h1 class="text-gradient">Student Register</h1>
@@ -106,11 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Personal Details
             </h3>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-row-2col">
                 <div class="form-group">
                     <label for="name" class="form-label">Full Name <span class="required">*</span></label>
                     <div class="input-group">
-                        <input type="text" name="name" id="name" class="form-control" placeholder="John Doe" required>
+                        <input type="text" name="name" id="name" class="form-control" placeholder="Enter your full name" required>
                         <i class="fas fa-user input-group-icon"></i>
                     </div>
                 </div>
@@ -118,17 +114,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="email" class="form-label">Email Address <span class="required">*</span></label>
                     <div class="input-group">
-                        <input type="email" name="email" id="email" class="form-control" placeholder="john.doe@campus.edu" required>
+                        <input type="email" name="email" id="email" class="form-control" placeholder="Enter your email address" required>
                         <i class="fas fa-envelope input-group-icon"></i>
                     </div>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-row-2col">
                 <div class="form-group">
                     <label for="phone" class="form-label">Phone Number</label>
                     <div class="input-group">
-                        <input type="text" name="phone" id="phone" class="form-control" placeholder="0123456789">
+                        <input type="text" name="phone" id="phone" class="form-control" placeholder="Enter your phone number">
                         <i class="fas fa-phone input-group-icon"></i>
                     </div>
                 </div>
@@ -136,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="password" class="form-label">Password <span class="required">*</span></label>
                     <div class="input-group">
-                        <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required autocomplete="new-password">
                         <i class="fas fa-lock input-group-icon"></i>
                         <i class="fas fa-eye input-group-icon" style="left: auto; right: 14px; cursor: pointer; pointer-events: auto;" onclick="togglePassword('password', this)"></i>
                     </div>
@@ -147,11 +143,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Academic & Location Information
             </h3>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-row-2col">
                 <div class="form-group">
                     <label for="student_number" class="form-label">Student ID / Roll <span class="required">*</span></label>
                     <div class="input-group">
-                        <input type="text" name="student_number" id="student_number" class="form-control" placeholder="STU-102938" required>
+                        <input type="text" name="student_number" id="student_number" class="form-control" placeholder="Enter your student ID / roll number" required>
                         <i class="fas fa-id-card input-group-icon"></i>
                     </div>
                 </div>
@@ -159,17 +155,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="department" class="form-label">Department</label>
                     <div class="input-group">
-                        <input type="text" name="department" id="department" class="form-control" placeholder="Computer Science">
+                        <input type="text" name="department" id="department" class="form-control" placeholder="Enter your department">
                         <i class="fas fa-graduation-cap input-group-icon"></i>
                     </div>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-row-2col">
                 <div class="form-group">
                     <label for="semester" class="form-label">Semester</label>
                     <div class="input-group">
-                        <input type="text" name="semester" id="semester" class="form-control" placeholder="6th Semester">
+                        <input type="text" name="semester" id="semester" class="form-control" placeholder="Enter your semester">
                         <i class="fas fa-calendar-alt input-group-icon"></i>
                     </div>
                 </div>
@@ -191,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="room_no" class="form-label">Room Number / Lab No</label>
                 <div class="input-group">
-                    <input type="text" name="room_no" id="room_no" class="form-control" placeholder="Room 402, Lab B">
+                    <input type="text" name="room_no" id="room_no" class="form-control" placeholder="Enter your room or lab number">
                     <i class="fas fa-door-open input-group-icon"></i>
                 </div>
             </div>

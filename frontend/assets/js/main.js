@@ -1,11 +1,3 @@
-/**
- * Campus Complaint Management System
- * Main JavaScript — UI Interactions, Light Theme Animations, Modal & AJAX handling
- */
-
-// ═══════════════════════════════════════════════════════════════
-//  TOAST NOTIFICATION SYSTEM
-// ═══════════════════════════════════════════════════════════════
 
 const Toast = {
     container: null,
@@ -45,7 +37,7 @@ const Toast = {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.style.cssText = `background:${bgColors[type] || '#fff'};color:${textColors[type] || '#0f172a'};border:1px solid rgba(0,0,0,0.05);padding:14px 18px;border-radius:12px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);display:flex;align-items:center;gap:12px;min-width:280px;animation:fadeInDown 0.3s ease;`;
-        
+
         toast.innerHTML = `
             <i class="${icons[type] || icons.info}" style="font-size:20px;"></i>
             <div style="flex:1;">
@@ -70,10 +62,6 @@ const Toast = {
     warning(title, message) { this.show('warning', title, message); },
     info(title, message) { this.show('info', title, message); }
 };
-
-// ═══════════════════════════════════════════════════════════════
-//  MODAL SYSTEM
-// ═══════════════════════════════════════════════════════════════
 
 const Modal = {
     open(id) {
@@ -100,21 +88,15 @@ const Modal = {
     }
 };
 
-// Close modal on backdrop click
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal')) {
         Modal.closeAll();
     }
 });
 
-// Close modal on Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') Modal.closeAll();
 });
-
-// ═══════════════════════════════════════════════════════════════
-//  SIDEBAR TOGGLE (Mobile)
-// ═══════════════════════════════════════════════════════════════
 
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
@@ -122,10 +104,6 @@ function toggleSidebar() {
         sidebar.classList.toggle('open');
     }
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  NOTIFICATION DROPDOWN
-// ═══════════════════════════════════════════════════════════════
 
 function toggleNotifications() {
     const dropdown = document.querySelector('.dropdown-menu');
@@ -141,10 +119,6 @@ document.addEventListener('click', (e) => {
         dropdown.classList.remove('show');
     }
 });
-
-// ═══════════════════════════════════════════════════════════════
-//  AJAX HELPER
-// ═══════════════════════════════════════════════════════════════
 
 async function ajaxRequest(url, method = 'GET', data = null) {
     const options = {
@@ -169,10 +143,6 @@ async function ajaxRequest(url, method = 'GET', data = null) {
         return { success: false, message: error.message };
     }
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  IMAGE PREVIEW ON UPLOAD
-// ═══════════════════════════════════════════════════════════════
 
 function setupImagePreview(inputId, previewId) {
     const input = document.getElementById(inputId);
@@ -210,10 +180,6 @@ function setupImagePreview(inputId, previewId) {
     });
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  ANIMATED COUNTER
-// ═══════════════════════════════════════════════════════════════
-
 function animateCounters() {
     const counters = document.querySelectorAll('[data-count]');
     counters.forEach(counter => {
@@ -236,10 +202,6 @@ function animateCounters() {
         requestAnimationFrame(update);
     });
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  FORM VALIDATION
-// ═══════════════════════════════════════════════════════════════
 
 function validateForm(formId) {
     const form = document.getElementById(formId);
@@ -273,10 +235,6 @@ function validateForm(formId) {
     return isValid;
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  TABLE SEARCH / FILTER
-// ═══════════════════════════════════════════════════════════════
-
 function setupTableSearch(inputId, tableId) {
     const input = document.getElementById(inputId);
     const table = document.getElementById(tableId);
@@ -293,10 +251,6 @@ function setupTableSearch(inputId, tableId) {
         });
     });
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  MARK NOTIFICATIONS AS READ
-// ═══════════════════════════════════════════════════════════════
 
 async function markNotificationRead(notifId) {
     const backendUrl = document.querySelector('meta[name="backend-url"]')?.content || '../backend';
@@ -320,10 +274,6 @@ async function markAllNotificationsRead() {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  PASSWORD TOGGLE
-// ═══════════════════════════════════════════════════════════════
-
 function togglePassword(inputId, iconElement) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -337,9 +287,47 @@ function togglePassword(inputId, iconElement) {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  INITIALIZE ON DOM READY
-// ═══════════════════════════════════════════════════════════════
+function confirmAction(title, message, callback) {
+    let confirmModal = document.getElementById('global-confirm-modal');
+    if (!confirmModal) {
+        confirmModal = document.createElement('div');
+        confirmModal.id = 'global-confirm-modal';
+        confirmModal.className = 'modal-overlay';
+        confirmModal.innerHTML = `
+            <div class="modal" style="max-width: 440px;">
+                <div class="modal-header">
+                    <h3 id="g-confirm-title">Confirm Action</h3>
+                    <button class="modal-close" onclick="Modal.close('global-confirm-modal')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <p id="g-confirm-message" style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="Modal.close('global-confirm-modal')">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="g-confirm-btn">Confirm Proceed</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(confirmModal);
+    }
+
+    document.getElementById('g-confirm-title').textContent = title || 'Confirm Action';
+    document.getElementById('g-confirm-message').textContent = message || 'Are you sure you want to proceed?';
+
+    const confirmBtn = document.getElementById('g-confirm-btn');
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+
+    newBtn.addEventListener('click', async () => {
+        Modal.close('global-confirm-modal');
+        if (typeof callback === 'function') {
+            await callback();
+        }
+    });
+
+    Modal.open('global-confirm-modal');
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     animateCounters();
@@ -355,3 +343,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     });
 });
+

@@ -1,8 +1,4 @@
 <?php
-/**
- * Admin Complaints Actions AJAX Processor (Backend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -35,7 +31,6 @@ try {
             jsonError('Invalid status ID selection.');
         }
 
-        // Verify status exists
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM complaint_status WHERE status_id = ?");
         $stmt->execute([$statusId]);
         if ($stmt->fetchColumn() <= 0) {

@@ -1,8 +1,4 @@
 <?php
-/**
- * Update Progress of Job Assignment (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -15,7 +11,6 @@ $error = '';
 $success = '';
 
 try {
-    // Fetch assignment details
     $stmt = $pdo->prepare(
         "SELECT a.*, c.title, c.description, c.priority, c.image as complaint_image, 
                 cc.category_name, b.building_name, cs.status_name, c.student_id, c.created_at as complaint_created
@@ -37,14 +32,12 @@ if (!$job) {
     exit();
 }
 
-// Security Check: Only allow progress updates on Accepted jobs
 if ($job['assignment_status'] !== 'Accepted') {
     $_SESSION['task_error'] = 'Progress updates are only allowed on accepted tasks.';
     header('Location: ' . FRONTEND_URL . '/staff/assigned_tasks.php');
     exit();
 }
 
-// Fetch statuses for progress options (e.g. In Progress, Resolved)
 try {
     $statuses = getStatuses($pdo);
 } catch (Exception $e) {
@@ -62,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imageName = null;
         $uploadOk = true;
 
-        // Handle repair image upload
         if (isset($_FILES['repair_image']) && $_FILES['repair_image']['error'] !== UPLOAD_ERR_NO_FILE) {
             $uploadResult = uploadImage($_FILES['repair_image'], REPAIR_IMG_PATH);
             if ($uploadResult['success']) {
@@ -77,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo->beginTransaction();
 
-                // 1. Insert progress update logs
                 $stmtUpdate = $pdo->prepare(
                     "INSERT INTO complaint_updates (complaint_id, staff_id, status_id, progress_note, progress_image) 
                      VALUES (?, ?, ?, ?, ?)"
@@ -90,9 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $imageName
                 ]);
 
-                // 2. Update parent complaint status
                 if ($mark_resolved) {
-                    // Force Status to Resolved
                     $statusResolvedId = getStatusIdByName($pdo, 'Resolved');
                     if ($statusResolvedId) $status_id = $statusResolvedId;
 
@@ -101,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                     $stmtComplaint->execute([$status_id, $job['complaint_id']]);
 
-                    // 3. Complete assignment details
                     $stmtAssign = $pdo->prepare(
                         "UPDATE assignments 
                          SET assignment_status = 'Completed', completed_date = NOW(), repair_notes = ?, repair_image = ? 
@@ -109,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                     $stmtAssign->execute([$progress_note, $imageName, $assignmentId]);
 
-                    // 4. Send Notification to Student
                     $stmtStudUser = $pdo->prepare("SELECT user_id FROM students WHERE student_id = ?");
                     $stmtStudUser->execute([$job['student_id']]);
                     $studentUserId = $stmtStudUser->fetchColumn();
@@ -123,12 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         );
                     }
 
-                    // 5. Update staff availability to available
                     $stmtStaff = $pdo->prepare("UPDATE maintenance_staff SET availability = 'available' WHERE staff_id = ?");
                     $stmtStaff->execute([$staffId]);
 
                 } else {
-                    // Basic progress status update
                     $stmtComplaint = $pdo->prepare(
                         "UPDATE complaints SET status_id = ? WHERE complaint_id = ?"
                     );
@@ -160,7 +145,6 @@ require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="complaint-detail stagger-in">
-    <!-- Main input column -->
     <div class="detail-main">
         <div class="card mb-lg">
             <div class="card-header">
@@ -182,7 +166,6 @@ require_once __DIR__ . '/../includes/header.php';
                                 <select name="status_id" id="status_id" class="form-control" required>
                                     <option value="">-- Choose Status --</option>
                                     <?php foreach ($statuses as $st): ?>
-                                        <!-- Do not allow manual status setting back to Pending or Assigned -->
                                         <?php if (!in_array($st['status_name'], ['Pending', 'Assigned', 'Rejected', 'Closed'])): ?>
                                             <option value="<?= $st['status_id'] ?>" <?= $st['status_name'] === 'In Progress' ? 'selected' : '' ?>>
                                                 <?= sanitize($st['status_name']) ?>
@@ -229,7 +212,6 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 
-    <!-- Job reference column -->
     <div class="detail-sidebar">
         <div class="card mb-lg">
             <div class="card-header">

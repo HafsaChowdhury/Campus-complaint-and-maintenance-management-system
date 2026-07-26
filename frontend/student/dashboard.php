@@ -1,7 +1,4 @@
 <?php
-/**
- * Student Dashboard (Frontend)
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -11,7 +8,6 @@ requireLogin('student');
 $studentId = $_SESSION['student_id'];
 $user = getCurrentUser();
 
-// Fetch metrics
 try {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE student_id = ?");
     $stmt->execute([$studentId]);
@@ -57,7 +53,6 @@ $currentPage = "dashboard";
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- Stat Cards Grid -->
 <div class="grid grid-4">
     <div class="stat-card">
         <div class="stat-info">
@@ -93,7 +88,6 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 <div class="grid grid-3" style="grid-template-columns: 2fr 1fr; margin-top: 24px;">
-    <!-- Recent Complaints Table -->
     <div class="card">
         <div class="card-header">
             <div class="card-title"><i class="fas fa-history text-accent"></i> Recent Submissions</div>
@@ -145,7 +139,6 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
     </div>
 
-    <!-- Quick Actions Panel -->
     <div class="card">
         <div class="card-header">
             <div class="card-title"><i class="fas fa-magic text-accent"></i> Quick Actions</div>

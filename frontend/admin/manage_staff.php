@@ -1,15 +1,10 @@
 <?php
-/**
- * Manage Maintenance Staff Directory
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 
 requireLogin('admin');
 
-// Fetch all staff members
 try {
     $stmt = $pdo->query(
         "SELECT ms.*, u.name, u.email, u.status 
@@ -36,7 +31,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
     
     <div class="card-body">
-        <!-- Live Table Filter -->
         <div class="table-filters">
             <div class="filter-search input-group" style="max-width: 400px;">
                 <input type="text" id="staff-search" class="form-control" placeholder="Search by name, ID, or specialization...">
@@ -99,7 +93,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- ─── ADD/EDIT STAFF MODAL ─── -->
 <div class="modal-overlay" id="staff-modal">
     <div class="modal">
         <div class="modal-header">

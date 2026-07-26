@@ -1,7 +1,4 @@
 <?php
-/**
- * Student Complaint History (Frontend)
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -17,7 +14,6 @@ if (isset($_SESSION['complaint_success'])) {
     unset($_SESSION['complaint_success']);
 }
 
-// Filters
 $statusFilter = sanitize($_GET['status'] ?? '');
 $categoryFilter = sanitize($_GET['category'] ?? '');
 $searchFilter = sanitize($_GET['search'] ?? '');
@@ -41,7 +37,6 @@ if (!empty($searchFilter)) {
     $queryParams[] = "%$searchFilter%";
 }
 
-// Pagination setup
 try {
     $countStmt = $pdo->prepare(
         "SELECT COUNT(*) FROM complaints c

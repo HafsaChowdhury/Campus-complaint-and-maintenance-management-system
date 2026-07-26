@@ -1,8 +1,4 @@
 <?php
-/**
- * Category CRUD AJAX Operations (Backend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -18,7 +14,6 @@ try {
 
         if (empty($category_name)) jsonError('Category name is required.');
 
-        // Name uniqueness check
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM complaint_categories WHERE category_name = ?");
         $stmt->execute([$category_name]);
         if ($stmt->fetchColumn() > 0) jsonError('Category name already exists.');
@@ -34,7 +29,6 @@ try {
 
         if ($categoryId <= 0 || empty($category_name)) jsonError('Required fields are missing.');
 
-        // Uniqueness check ignoring current category
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM complaint_categories WHERE category_name = ? AND category_id != ?");
         $stmt->execute([$category_name, $categoryId]);
         if ($stmt->fetchColumn() > 0) jsonError('Category name already exists.');
@@ -47,7 +41,6 @@ try {
         $categoryId = isset($_POST['category_id']) ? (int)$_POST['category_id'] : 0;
         if ($categoryId <= 0) jsonError('Invalid Category ID.');
 
-        // Double check associated complaints to protect data consistency
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE category_id = ?");
         $stmt->execute([$categoryId]);
         if ($stmt->fetchColumn() > 0) {

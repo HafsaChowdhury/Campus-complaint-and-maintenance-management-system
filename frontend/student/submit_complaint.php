@@ -1,7 +1,4 @@
 <?php
-/**
- * Submit New Complaint (Frontend)
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -12,7 +9,6 @@ $studentId = $_SESSION['student_id'];
 $error = '';
 $success = '';
 
-// Fetch categories & buildings
 try {
     $categories = getCategories($pdo);
     $buildings = getBuildings($pdo);

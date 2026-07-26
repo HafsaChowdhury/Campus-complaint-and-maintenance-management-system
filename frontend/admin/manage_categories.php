@@ -1,8 +1,4 @@
 <?php
-/**
- * Manage Complaint Categories
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -10,7 +6,6 @@ require_once __DIR__ . '/../includes/functions.php';
 requireLogin('admin');
 
 try {
-    // Count items per category to prevent delete bugs
     $stmt = $pdo->query(
         "SELECT cc.*, COUNT(c.complaint_id) as complaint_count 
          FROM complaint_categories cc

@@ -1,8 +1,4 @@
 <?php
-/**
- * Maintenance Staff AJAX Actions Handler (Backend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -18,7 +14,6 @@ if ($assignmentId <= 0) {
 }
 
 try {
-    // Verify assignment exists and belongs to the technician
     $stmt = $pdo->prepare(
         "SELECT a.*, c.student_id, c.title 
          FROM assignments a 
@@ -39,33 +34,27 @@ try {
 
         $pdo->beginTransaction();
 
-        // 1. Update assignment
         $stmtAssign = $pdo->prepare(
             "UPDATE assignments SET assignment_status = 'Accepted', accepted_date = NOW() 
              WHERE assignment_id = ?"
         );
         $stmtAssign->execute([$assignmentId]);
 
-        // 2. Fetch status ID for 'Accepted'
         $statusAcceptedId = getStatusIdByName($pdo, 'Accepted');
         if (!$statusAcceptedId) $statusAcceptedId = 3;
 
-        // 3. Update parent complaint
         $stmtComplaint = $pdo->prepare("UPDATE complaints SET status_id = ? WHERE complaint_id = ?");
         $stmtComplaint->execute([$statusAcceptedId, $assignment['complaint_id']]);
 
-        // 4. Log progress update
         $stmtUpdate = $pdo->prepare(
             "INSERT INTO complaint_updates (complaint_id, staff_id, status_id, progress_note) 
              VALUES (?, ?, ?, 'Staff member accepted the task and initiated repair review.')"
         );
         $stmtUpdate->execute([$assignment['complaint_id'], $staffId, $statusAcceptedId]);
 
-        // 5. Update staff availability to busy
         $stmtStaff = $pdo->prepare("UPDATE maintenance_staff SET availability = 'busy' WHERE staff_id = ?");
         $stmtStaff->execute([$staffId]);
 
-        // 6. Notify student
         $stmtStudUser = $pdo->prepare("SELECT user_id FROM students WHERE student_id = ?");
         $stmtStudUser->execute([$assignment['student_id']]);
         $studentUserId = $stmtStudUser->fetchColumn();
@@ -89,28 +78,24 @@ try {
 
         $pdo->beginTransaction();
 
-        // 1. Update assignment status
         $stmtAssign = $pdo->prepare("UPDATE assignments SET assignment_status = 'Rejected' WHERE assignment_id = ?");
         $stmtAssign->execute([$assignmentId]);
 
-        // 2. Reset complaint status to Pending so admin can re-assign
         $statusPendingId = getStatusIdByName($pdo, 'Pending');
         if (!$statusPendingId) $statusPendingId = 1;
 
         $stmtComplaint = $pdo->prepare("UPDATE complaints SET status_id = ? WHERE complaint_id = ?");
         $stmtComplaint->execute([$statusPendingId, $assignment['complaint_id']]);
 
-        // 3. Log progress update
         $stmtUpdate = $pdo->prepare(
             "INSERT INTO complaint_updates (complaint_id, staff_id, status_id, progress_note) 
              VALUES (?, ?, ?, 'Staff member declined the job assignment. Complaint returned to assignment queue.')"
         );
         $stmtUpdate->execute([$assignment['complaint_id'], $staffId, $statusPendingId]);
 
-        // 4. Notify admin of rejection
         notifyAdmins(
             $pdo,
-            "Job Dispatch Rejected ⚠️",
+            "Job Dispatch Rejected ",
             "A technician declined the assignment for complaint (#CMP-" . str_pad($assignment['complaint_id'], 4, '0', STR_PAD_LEFT) . ")."
         );
 

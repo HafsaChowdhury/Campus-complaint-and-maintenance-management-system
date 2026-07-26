@@ -1,8 +1,4 @@
 <?php
-/**
- * Location / Building CRUD AJAX Operations (Backend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -18,7 +14,6 @@ try {
 
         if (empty($building_name)) jsonError('Building name is required.');
 
-        // Name uniqueness check
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM buildings WHERE building_name = ?");
         $stmt->execute([$building_name]);
         if ($stmt->fetchColumn() > 0) jsonError('Building location name already exists.');
@@ -47,7 +42,6 @@ try {
         $buildingId = isset($_POST['building_id']) ? (int)$_POST['building_id'] : 0;
         if ($buildingId <= 0) jsonError('Invalid Building ID.');
 
-        // Check if complaints or students are associated to prevent DB constraint conflicts
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE building_id = ?");
         $stmt->execute([$buildingId]);
         if ($stmt->fetchColumn() > 0) {

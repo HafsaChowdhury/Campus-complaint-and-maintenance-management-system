@@ -1,22 +1,16 @@
 <?php
-/**
- * Manage Students Directory (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
 
 requireLogin('admin');
 
-// Fetch all buildings for select dropdowns
 try {
     $buildings = getBuildings($pdo);
 } catch (Exception $e) {
     $buildings = [];
 }
 
-// Fetch all students for directory view
 try {
     $stmt = $pdo->query(
         "SELECT s.*, u.name, u.email, u.phone, u.status, b.building_name 
@@ -44,7 +38,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
     
     <div class="card-body">
-        <!-- Live Table Filter -->
         <div class="table-filters">
             <div class="filter-search input-group" style="max-width: 400px;">
                 <input type="text" id="student-search" class="form-control" placeholder="Search by name, ID, or department...">
@@ -109,7 +102,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- ─── VIEW STUDENT DETAILS MODAL ─── -->
 <div class="modal-overlay" id="student-view-modal">
     <div class="modal" style="max-width: 560px;">
         <div class="modal-header">
@@ -168,7 +160,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<!-- ─── ADD/EDIT STUDENT MODAL ─── -->
 <div class="modal-overlay" id="student-modal">
     <div class="modal">
         <div class="modal-header">
@@ -185,40 +176,40 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="form-row">
                     <div class="form-group">
                         <label for="m-name" class="form-label">Full Name <span class="required">*</span></label>
-                        <input type="text" name="name" id="m-name" class="form-control" required>
+                        <input type="text" name="name" id="m-name" class="form-control" placeholder="Enter student's full name" required>
                     </div>
                     <div class="form-group">
                         <label for="m-email" class="form-label">Email Address <span class="required">*</span></label>
-                        <input type="email" name="email" id="m-email" class="form-control" required>
+                        <input type="email" name="email" id="m-email" class="form-control" placeholder="Enter email address" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="m-phone" class="form-label">Phone Number</label>
-                        <input type="text" name="phone" id="m-phone" class="form-control">
+                        <input type="text" name="phone" id="m-phone" class="form-control" placeholder="Enter phone number">
                     </div>
                     <div class="form-group" id="password-group">
                         <label for="m-password" class="form-label">Password <span class="required">*</span></label>
-                        <input type="password" name="password" id="m-password" class="form-control" placeholder="••••••••">
+                        <input type="password" name="password" id="m-password" class="form-control" placeholder="Enter password">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="m-student-number" class="form-label">Student ID / Roll <span class="required">*</span></label>
-                        <input type="text" name="student_number" id="m-student-number" class="form-control" required>
+                        <input type="text" name="student_number" id="m-student-number" class="form-control" placeholder="Enter student ID / roll" required>
                     </div>
                     <div class="form-group">
                         <label for="m-department" class="form-label">Department</label>
-                        <input type="text" name="department" id="m-department" class="form-control">
+                        <input type="text" name="department" id="m-department" class="form-control" placeholder="Enter department">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="m-semester" class="form-label">Semester</label>
-                        <input type="text" name="semester" id="m-semester" class="form-control">
+                        <input type="text" name="semester" id="m-semester" class="form-control" placeholder="Enter semester">
                     </div>
                     <div class="form-group">
                         <label for="m-building-id" class="form-label">Hostel / Location</label>
@@ -234,7 +225,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="form-row">
                     <div class="form-group">
                         <label for="m-room-no" class="form-label">Room Number</label>
-                        <input type="text" name="room_no" id="m-room-no" class="form-control">
+                        <input type="text" name="room_no" id="m-room-no" class="form-control" placeholder="Enter room number">
                     </div>
                     <div class="form-group">
                         <label for="m-status" class="form-label">Account Status</label>

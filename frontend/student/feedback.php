@@ -1,8 +1,4 @@
 <?php
-/**
- * Student Feedback Submission Handler (Frontend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -23,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Verify complaint ownership & status
         $stmt = $pdo->prepare(
             "SELECT c.*, cs.status_name 
              FROM complaints c
@@ -41,21 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo->beginTransaction();
 
-        // 1. Save feedback record
         $stmtFb = $pdo->prepare(
             "INSERT INTO feedback (complaint_id, student_id, rating, comments)
              VALUES (?, ?, ?, ?)"
         );
         $stmtFb->execute([$complaintId, $studentId, $rating, $comments]);
 
-        // 2. Change complaint status to 'Closed'
         $statusClosedId = getStatusIdByName($pdo, 'Closed');
         if (!$statusClosedId) $statusClosedId = 6;
 
         $stmtClosed = $pdo->prepare("UPDATE complaints SET status_id = ? WHERE complaint_id = ?");
         $stmtClosed->execute([$statusClosedId, $complaintId]);
 
-        // 3. Log complaint update entry
         $stmtLog = $pdo->prepare(
             "INSERT INTO complaint_updates (complaint_id, staff_id, status_id, progress_note)
              VALUES (?, NULL, ?, ?)"

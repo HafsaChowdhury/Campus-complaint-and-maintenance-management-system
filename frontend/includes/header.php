@@ -1,8 +1,4 @@
 <?php
-/**
- * Common Header (Frontend) — HTML head, Light Theme Sidebar & Topbar
- */
-
 require_once __DIR__ . '/../../backend/config/db.php';
 require_once __DIR__ . '/../../backend/includes/auth.php';
 require_once __DIR__ . '/../../backend/includes/functions.php';
@@ -34,7 +30,6 @@ if ($user) {
 <body>
 
 <div class="app-container">
-    <!-- ═══ SIDEBAR ═══ -->
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="logo-icon">🏛️</div>
@@ -112,9 +107,7 @@ if ($user) {
         </div>
     </aside>
 
-    <!-- ═══ MAIN WRAPPER ═══ -->
     <div class="main-wrapper">
-        <!-- Top Navigation Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
@@ -124,7 +117,6 @@ if ($user) {
             </div>
 
             <div class="topbar-right">
-                <!-- Notification Bell -->
                 <div class="notification-dropdown">
                     <button class="notification-btn" onclick="toggleNotifications()">
                         <i class="fas fa-bell"></i>
@@ -160,5 +152,4 @@ if ($user) {
             </div>
         </header>
 
-        <!-- Content Workspace -->
         <main class="content-area">

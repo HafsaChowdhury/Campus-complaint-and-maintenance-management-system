@@ -1,8 +1,4 @@
 <?php
-/**
- * Dispatch Complaint Assignment (Backend AJAX Endpoint)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -22,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // 1. Verify complaint exists and is not resolved/closed
         $stmt = $pdo->prepare(
             "SELECT c.*, cs.status_name 
              FROM complaints c
@@ -40,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             jsonError('Cannot assign a resolved or closed complaint.');
         }
 
-        // 2. Fetch technician details
+        //  Fetch technician details
         $stmtStaff = $pdo->prepare(
             "SELECT ms.*, u.name, u.user_id as staff_user_id 
              FROM maintenance_staff ms
@@ -54,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             jsonError('Technician profile not found.');
         }
 
-        // 3. Deactivate any previous active assignments (Assigned / Accepted) for this complaint
         $stmtOldAssign = $pdo->prepare(
             "UPDATE assignments 
              SET assignment_status = 'Rejected' 
@@ -62,21 +56,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         $stmtOldAssign->execute([$complaintId]);
 
-        // 4. Create new job assignment
+        //  Create new job assignment
         $stmtNewAssign = $pdo->prepare(
             "INSERT INTO assignments (complaint_id, staff_id, assigned_by, assignment_status) 
              VALUES (?, ?, ?, 'Assigned')"
         );
         $stmtNewAssign->execute([$complaintId, $staffId, $adminId]);
 
-        // 5. Update parent complaint status to 'Assigned'
+        //  Update parent complaint status to 'Assigned'
         $statusAssignedId = getStatusIdByName($pdo, 'Assigned');
         if (!$statusAssignedId) $statusAssignedId = 2; // Fallback
 
         $stmtComplaint = $pdo->prepare("UPDATE complaints SET status_id = ? WHERE complaint_id = ?");
         $stmtComplaint->execute([$statusAssignedId, $complaintId]);
 
-        // 6. Log progress update history entry
+        //  Log progress update history entry
         $stmtUpdate = $pdo->prepare(
             "INSERT INTO complaint_updates (complaint_id, staff_id, status_id, progress_note) 
              VALUES (?, ?, ?, ?)"
@@ -88,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "Complaint assigned to: " . $staff['name'] . " (" . ($staff['designation'] ?: 'Technician') . ") by System Administrator."
         ]);
 
-        // 7. Notify technician
+        //  Notify technician
         createNotification(
             $pdo,
             $staff['staff_user_id'],
@@ -96,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "You have been assigned to complaint #CMP-" . str_pad($complaintId, 4, '0', STR_PAD_LEFT) . " (" . sanitize($complaint['title']) . ")."
         );
 
-        // 8. Notify student
+        //  Notify student
         $stmtStudUser = $pdo->prepare("SELECT user_id FROM students WHERE student_id = ?");
         $stmtStudUser->execute([$complaint['student_id']]);
         $studentUserId = $stmtStudUser->fetchColumn();

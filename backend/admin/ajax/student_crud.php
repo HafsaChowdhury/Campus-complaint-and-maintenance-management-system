@@ -1,8 +1,4 @@
 <?php
-/**
- * Student CRUD AJAX Operations (Backend)
- * Campus Complaint & Maintenance Management System
- */
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -112,7 +108,6 @@ try {
         $userId = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
         if ($userId <= 0) jsonError('Invalid User ID.');
 
-        // Deleting from users cascading deletes the student row automatically
         $stmt = $pdo->prepare("DELETE FROM users WHERE user_id = ? AND role = 'student'");
         $stmt->execute([$userId]);
         jsonSuccess('Student record deleted successfully.');
