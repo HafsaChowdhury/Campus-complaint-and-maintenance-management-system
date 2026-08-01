@@ -53,37 +53,41 @@ $currentPage = "dashboard";
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="grid grid-4">
-    <div class="stat-card">
-        <div class="stat-info">
-            <h3 data-count="<?= $totalComplaints ?>">0</h3>
-            <p>Total Complaints</p>
+<div class="stats-grid stagger-in">
+    <div class="stat-card stat-primary">
+        <div class="stat-card-top">
+            <div class="stat-label">Total Complaints</div>
+            <div class="stat-icon"><i class="fas fa-folder-open"></i></div>
         </div>
-        <div class="stat-icon indigo"><i class="fas fa-folder-open"></i></div>
+        <div class="stat-value" data-count="<?= $totalComplaints ?>">0</div>
+        <div class="stat-change">All submitted tickets</div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-info">
-            <h3 data-count="<?= $pendingComplaints ?>">0</h3>
-            <p>Pending Review</p>
+    <div class="stat-card stat-warning">
+        <div class="stat-card-top">
+            <div class="stat-label">Pending Review</div>
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
         </div>
-        <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
+        <div class="stat-value" data-count="<?= $pendingComplaints ?>">0</div>
+        <div class="stat-change">Awaiting administration</div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-info">
-            <h3 data-count="<?= $inProgressComplaints ?>">0</h3>
-            <p>In Progress</p>
+    <div class="stat-card stat-info">
+        <div class="stat-card-top">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-icon"><i class="fas fa-spinner fa-spin-slow"></i></div>
         </div>
-        <div class="stat-icon info"><i class="fas fa-spinner"></i></div>
+        <div class="stat-value" data-count="<?= $inProgressComplaints ?>">0</div>
+        <div class="stat-change">Technician assigned</div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-info">
-            <h3 data-count="<?= $resolvedComplaints ?>">0</h3>
-            <p>Resolved</p>
+    <div class="stat-card stat-success">
+        <div class="stat-card-top">
+            <div class="stat-label">Resolved</div>
+            <div class="stat-icon"><i class="fas fa-check-double"></i></div>
         </div>
-        <div class="stat-icon success"><i class="fas fa-check-double"></i></div>
+        <div class="stat-value" data-count="<?= $resolvedComplaints ?>">0</div>
+        <div class="stat-change">Successfully closed</div>
     </div>
 </div>
 
