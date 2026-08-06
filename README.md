@@ -480,6 +480,7 @@ All screenshots and visual assets are located in the `showcase/` directory.
 
 Bash
 git clone https://github.com/HafsaChowdhury/Campus-complaint-and-maintenance-management-system.git
+
 2. Initialize Database
 
 Open XAMPP Control Panel and start Apache & MySQL.
