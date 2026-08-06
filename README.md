@@ -358,13 +358,14 @@ The SQL script includes sample data for:
 ---
 
 ## Technologies Used
-
+- HTML
+- CSS
+- JavaScript
+- PHP
 - MySQL
 - SQL
-- Relational Database Design
-- Foreign Keys
-- Constraints
-- Indexing
+- Xampp
+
 
 ---
 
@@ -473,3 +474,25 @@ All screenshots and visual assets are located in the `showcase/` directory.
 ##### Reports & Analytics Engine (`12.png`)
 ![Reports & Analytics Engine](showcase/12.png)
 *Analytics desk with date/building filters, resolution speed metrics, and CSV export functionality.*
+
+🛠️ Setup & Installation
+1. Clone the Repository
+
+Bash
+git clone https://github.com/HafsaChowdhury/Campus-complaint-and-maintenance-management-system.git
+2. Initialize Database
+
+Open XAMPP Control Panel and start Apache & MySQL.
+
+Open http://localhost/phpmyadmin and create campus_complaint_db.
+
+Run the commands or import the file in database.sql to build the schema.
+
+3. Config
+
+Edit config/database.php with your MySQL credentials.
+
+4. Run
+
+Bash
+php -S localhost:8000 -t public
