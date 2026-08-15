@@ -49,9 +49,8 @@ try {
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $pagination = paginate($totalItems, 10, $page);
 
-// Add limits
-$queryParams[] = $pagination['offset'];
-$queryParams[] = $pagination['per_page'];
+$offset = (int)$pagination['offset'];
+$perPage = (int)$pagination['per_page'];
 
 try {
     $stmt = $pdo->prepare(
@@ -68,7 +67,7 @@ try {
          LEFT JOIN users tu ON ms.user_id = tu.user_id
          $whereClause
          ORDER BY c.created_at DESC
-         LIMIT ?, ?"
+         LIMIT {$offset}, {$perPage}"
     );
     $stmt->execute($queryParams);
     $complaints = $stmt->fetchAll();
@@ -92,7 +91,7 @@ require_once __DIR__ . '/../includes/header.php';
 <!-- Filters Card -->
 <div class="card mb-lg stagger-in">
     <div class="card-body">
-        <form method="GET" action="<?= BASE_URL ?>/admin/complaints.php" class="table-filters" id="filter-form">
+        <form method="GET" action="<?= FRONTEND_URL ?>/admin/complaints.php" class="table-filters" id="filter-form">
             <div class="form-group mb-0">
                 <select name="status" class="form-control" onchange="document.getElementById('filter-form').submit()">
                     <option value="">All Statuses</option>
@@ -110,7 +109,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <select name="category" class="form-control" onchange="document.getElementById('filter-form').submit()">
                     <option value="">All Categories</option>
                     <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $cat['category_id'] ?>" <?= (int)$categoryFilter === (int)$cat['category_id'] ? 'selected' : '' ?>>
+                        <option value="<?= $cat['category_id'] ?>" <?= ($categoryFilter !== '' && (int)$categoryFilter === (int)$cat['category_id']) ? 'selected' : '' ?>>
                             <?= sanitize($cat['category_name']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -130,7 +129,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <select name="building" class="form-control" onchange="document.getElementById('filter-form').submit()">
                     <option value="">All Buildings</option>
                     <?php foreach ($buildings as $bld): ?>
-                        <option value="<?= $bld['building_id'] ?>" <?= (int)$buildingFilter === (int)$bld['building_id'] ? 'selected' : '' ?>>
+                        <option value="<?= $bld['building_id'] ?>" <?= ($buildingFilter !== '' && (int)$buildingFilter === (int)$bld['building_id']) ? 'selected' : '' ?>>
                             <?= sanitize($bld['building_name']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -138,7 +137,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <?php if (!empty($statusFilter) || !empty($categoryFilter) || !empty($priorityFilter) || !empty($buildingFilter)): ?>
-                <a href="<?= BASE_URL ?>/admin/complaints.php" class="btn btn-outline btn-sm">Clear Filters</a>
+                <a href="<?= FRONTEND_URL ?>/admin/complaints.php" class="btn btn-outline btn-sm">Clear Filters</a>
             <?php endif; ?>
         </form>
     </div>
@@ -233,7 +232,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Render Pagination -->
         <?php 
-            $paginationUrl = BASE_URL . "/admin/complaints.php?status=" . urlencode($statusFilter) . "&category=" . urlencode($categoryFilter) . "&priority=" . urlencode($priorityFilter) . "&building=" . urlencode($buildingFilter);
+            $paginationUrl = FRONTEND_URL . "/admin/complaints.php?status=" . urlencode($statusFilter) . "&category=" . urlencode($categoryFilter) . "&priority=" . urlencode($priorityFilter) . "&building=" . urlencode($buildingFilter);
             echo renderPagination($pagination, $paginationUrl);
         ?>
     </div>
