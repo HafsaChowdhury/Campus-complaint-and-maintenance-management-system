@@ -15,6 +15,11 @@ if (isset($_SESSION['feedback_success'])) {
     unset($_SESSION['feedback_success']);
 }
 
+if (isset($_SESSION['feedback_error'])) {
+    $error = $_SESSION['feedback_error'];
+    unset($_SESSION['feedback_error']);
+}
+
 try {
     $stmt = $pdo->prepare(
         "SELECT c.*, cs.status_name, cc.category_name, b.building_name 
@@ -48,8 +53,8 @@ try {
         "SELECT cu.*, cs.status_name, u.name as staff_name 
          FROM complaint_updates cu
          JOIN complaint_status cs ON cu.status_id = cs.status_id
-         JOIN maintenance_staff ms ON cu.staff_id = ms.staff_id
-         JOIN users u ON ms.user_id = u.user_id
+         LEFT JOIN maintenance_staff ms ON cu.staff_id = ms.staff_id
+         LEFT JOIN users u ON ms.user_id = u.user_id
          WHERE cu.complaint_id = ? 
          ORDER BY cu.created_at DESC"
     );
