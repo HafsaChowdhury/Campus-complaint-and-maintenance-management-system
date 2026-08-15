@@ -48,16 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmtClosed = $pdo->prepare("UPDATE complaints SET status_id = ? WHERE complaint_id = ?");
         $stmtClosed->execute([$statusClosedId, $complaintId]);
 
-        $stmtLog = $pdo->prepare(
-            "INSERT INTO complaint_updates (complaint_id, staff_id, status_id, progress_note)
-             VALUES (?, NULL, ?, ?)"
-        );
-        $stmtLog->execute([
-            $complaintId,
-            $statusClosedId,
-            "Feedback submitted (" . $rating . " Stars). Complaint ticket officially closed."
-        ]);
-
         $pdo->commit();
 
         $_SESSION['feedback_success'] = 'Thank you! Your feedback has been recorded and ticket closed.';
