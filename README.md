@@ -406,7 +406,7 @@ All screenshots and visual assets are located in the `showcase/` directory.
 ![Submit Complaint Form](showcase/s3.png)
 *Interface for filing a new maintenance request with location and category dropdowns.*
 
-##### Track Complaint & Feedback (`s5_2.png`)
+##### Track Complaint & Feedback (`s5.png`)
 ![Track Complaint Details](showcase/s5.png)
 *Detailed tracking view with repair history timeline and 5-star resolution rating form.*
 
