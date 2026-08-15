@@ -393,8 +393,8 @@ All screenshots and visual assets are located in the `showcase/` directory.
 | **Student Dashboard** | `showcase/s1.png` | Overview desk displaying current ticket counters (Pending, In Progress, Resolved) and recent ticket history. |
 | **Notifications Drawer** | `showcase/s2.png` | Notification panel showing real-time updates when technicians accept tasks or resolve issues. |
 | **Submit Complaint** | `showcase/s3.png` | Ticket filing form equipped with building selectors, category pickers, priority options, and image uploader. |
-| **My Complaints Listing** | `showcase/s4_2.png` | Student tracking table featuring live status badges and quick inspection buttons. |
-| **Track & Rate Complaint** | `showcase/s5_2.png` | Comprehensive ticket detail view displaying repair timelines, staff notes, issue photo, and a 5-star rating submission form. |
+| **My Complaints Listing** | `showcase/s4.png` | Student tracking table featuring live status badges and quick inspection buttons. |
+| **Track & Rate Complaint** | `showcase/s5.png` | Comprehensive ticket detail view displaying repair timelines, staff notes, issue photo, and a 5-star rating submission form. |
 
 #### Student Portal Page Previews
 
@@ -407,7 +407,7 @@ All screenshots and visual assets are located in the `showcase/` directory.
 *Interface for filing a new maintenance request with location and category dropdowns.*
 
 ##### Track Complaint & Feedback (`s5_2.png`)
-![Track Complaint Details](showcase/s5_2.png)
+![Track Complaint Details](showcase/s5.png)
 *Detailed tracking view with repair history timeline and 5-star resolution rating form.*
 
 ---
@@ -485,15 +485,16 @@ git clone https://github.com/HafsaChowdhury/Campus-complaint-and-maintenance-man
 
 Open XAMPP Control Panel and start Apache & MySQL.
 
-Open http://localhost/phpmyadmin and create campus_complaint_db.
+Open http://localhost/phpmyadmin and create campus_complaint_system.
 
-Run the commands or import the file in database.sql to build the schema.
+Run the commands or import the file in campus_complaint_system.sql to build the schema.
 
 3. Config
 
-Edit config/database.php with your MySQL credentials.
+Edit backend/config/db.php with your MySQL credentials.
 
 4. Run
+Place the project inside your XAMPP htdocs directory (C:/xampp/htdocs/Campus-complaint-and-maintenance-management-system) and open:
+http://localhost/Campus-complaint-and-maintenance-management-system/
 
-Bash
-php -S localhost:8000 -t public
+for Setup: http://localhost/Campus-complaint-and-maintenance-management-system/backend/setup.php
