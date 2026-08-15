@@ -30,26 +30,25 @@ This project is designed to simplify the maintenance complaint process on a univ
 ## Database Structure
 
 ```
-Users
-│
-├── Students
-├── Admins
-└── Maintenance Staff
-             │
-             ▼
-         Complaints
-                 │
-          ┌──────┼──────────┐
-          ▼       ▼         ▼
-Assignments  Complaint   Updates  Feedback
+USERS
+ │
+ ├──► STUDENTS ──► COMPLAINTS
+ │                     │
+ │                     ├──► ASSIGNMENTS
+ │                     ├──► COMPLAINT_UPDATES
+ │                     └──► FEEDBACK
+ │
+ ├──► ADMINS
+ │
+ ├──► MAINTENANCE_STAFF
+ │
+ └──► NOTIFICATIONS
+
 
 Lookup Tables
---------------
-• Buildings
-• Complaint Categories
-• Complaint Status
-
-Notifications
+ ├── BUILDINGS
+ ├── COMPLAINT_CATEGORIES
+ └── COMPLAINT_STATUS
 ```
 
 ---
