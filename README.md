@@ -35,13 +35,13 @@ Users
 ├── Students
 ├── Admins
 └── Maintenance Staff
-        │
-        ▼
-    Complaints
-        │
- ┌──────┼──────────┐
- ▼      ▼          ▼
-Assignments  Complaint Updates  Feedback
+             │
+             ▼
+         Complaints
+                 │
+          ┌──────┼──────────┐
+          ▼       ▼         ▼
+Assignments  Complaint   Updates  Feedback
 
 Lookup Tables
 --------------
