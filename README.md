@@ -493,6 +493,7 @@ Run the commands or import the file in campus_complaint_system.sql to build the 
 Edit backend/config/db.php with your MySQL credentials.
 
 4. Run
+   
 Place the project inside your XAMPP htdocs directory (C:/xampp/htdocs/Campus-complaint-and-maintenance-management-system) and open:
 http://localhost/Campus-complaint-and-maintenance-management-system/
 
